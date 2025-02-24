@@ -1,8 +1,8 @@
-// components/layout/DashboardContent.tsx
+// components/layout/DashboardContent.tsx (Componente Cliente)
+// Este componente se encarga de renderizar el contenido interactivo del dashboard. Cambios en el navbar de dashboard importar
 "use client";
 
 import { useState } from "react";
-import Header from "@/components/layout/Header";
 import Navbar from "@/components/Navbar/Navbar";
 import Sidebar from "@/components/Sidebar/Sidebar";
 
@@ -24,10 +24,9 @@ export default function DashboardContent({
 
       {/* Main content: on xl, add left margin to account for fixed sidebar */}
       <div className="flex-1 flex flex-col overflow-hidden xl:ml-64">
-        <Header />
         <Navbar onToggleSidebar={() => setMobileSidebarOpen((prev) => !prev)} />
           {/* bg de dashboard */}
-        <main className="flex-1 overflow-auto p-6 bg-[#1c1c1c] dark:bg-secondary">
+        <main className="flex-1 overflow-auto p-6 bg-slate dark:bg-secondary">
           {children}
         </main>
       </div>
