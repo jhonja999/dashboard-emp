@@ -10,6 +10,7 @@ import { BookOpenCheck, UsersRound, Waypoints } from "lucide-react";
 import { LastCustomers } from "../components/LastCustomers";
 import SalesDistributors from "../components/SalesDistributors/SalesDistributors";
 import { TotalSuscribers } from "../components/TotalSuscribers/TotalSuscribers";
+import ListIntegrations from "../components/ListIntegrations/ListIntegrations";
 
 /* =======================================
    Tipos mínimos para Swapy
@@ -86,7 +87,10 @@ export default function Dashboard() {
     // 3. Restaurar orden guardado en localStorage
     const savedLayout = localStorage.getItem("myDashboardLayout");
     if (savedLayout) {
-      const parsed = JSON.parse(savedLayout) as Array<{ slot: string; item: string }>;
+      const parsed = JSON.parse(savedLayout) as Array<{
+        slot: string;
+        item: string;
+      }>;
       applyArrangement(parsed);
     } else {
       // Si no hay nada guardado, usamos el orden por defecto
@@ -156,7 +160,10 @@ export default function Dashboard() {
       {/* Contenedor principal con grid (por defecto 3 filas de ejemplo) */}
       <div className="card-container grid grid-cols-12 gap-4 auto-rows-auto">
         {/* Fila 1: Tres tarjetas en 3 columnas */}
-        <div data-swapy-slot="CompaniesCreated" className="col-span-12 md:col-span-4">
+        <div
+          data-swapy-slot="CompaniesCreated"
+          className="col-span-12 md:col-span-4"
+        >
           <div data-swapy-item="CompaniesCreated">
             <CardSummary
               icon={UsersRound}
@@ -169,7 +176,10 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div data-swapy-slot="TotalRevenue" className="col-span-12 md:col-span-4">
+        <div
+          data-swapy-slot="TotalRevenue"
+          className="col-span-12 md:col-span-4"
+        >
           <div data-swapy-item="TotalRevenue">
             <CardSummary
               icon={Waypoints}
@@ -196,28 +206,40 @@ export default function Dashboard() {
         </div>
 
         {/* Fila 2: LastCustomers y SalesDistributors en 2 columnas */}
-        <div data-swapy-slot="LastCustomers" className="col-span-12 md:col-span-6">
+        <div
+          data-swapy-slot="LastCustomers"
+          className="col-span-12 md:col-span-6"
+        >
           <div data-swapy-item="LastCustomers">
             <LastCustomers />
           </div>
         </div>
 
-        <div data-swapy-slot="SalesDistributors" className="col-span-12 md:col-span-6">
+        <div
+          data-swapy-slot="SalesDistributors"
+          className="col-span-12 md:col-span-6"
+        >
           <div data-swapy-item="SalesDistributors">
             <SalesDistributors />
           </div>
         </div>
 
         {/* Fila 3: TotalSuscribers y ListIntegrations en 2 columnas */}
-        <div data-swapy-slot="TotalSubscribers" className="col-span-12 md:col-span-6">
+        <div
+          data-swapy-slot="TotalSubscribers"
+          className="col-span-12 md:col-span-6"
+        >
           <div data-swapy-item="TotalSubscribers">
             <TotalSuscribers />
           </div>
         </div>
 
-        <div data-swapy-slot="ListIntegrations" className="col-span-12 md:col-span-6">
+        <div
+          data-swapy-slot="ListIntegrations"
+          className="col-span-12 md:col-span-6"
+        >
           <div data-swapy-item="ListIntegrations">
-            <p className="text-lg font-semibold">List Integrations</p>
+            <ListIntegrations />
           </div>
         </div>
       </div>

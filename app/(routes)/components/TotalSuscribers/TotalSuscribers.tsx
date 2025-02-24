@@ -45,7 +45,7 @@ export function TotalSuscribers() {
       {/* Encabezado */}
       <div className="flex items-center gap-2 mb-4">
         <CustomIcon icon={Percent} />
-        <span className="text-xl font-bold">Total Subscribers</span>
+        <span className="text-lg font-semibold text-primary">Total Subscribers</span>
       </div>
 
       {/* Contenedor del gráfico */}

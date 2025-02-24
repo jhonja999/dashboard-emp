@@ -9,7 +9,7 @@ export default function SalesDistributors() {
     <div className="p-5 rounded-lg shadow-sm bg-background">
       <div className="flex items-center gap-x-2">
         <CustomIcon icon={BarChart} />
-        <p className="text-xl">Sales Distributors</p>
+        <p className="text-lg font-semibold text-primary">Sales Distributors</p>
       </div>
       <div>
         <GraphicSuscribers />
