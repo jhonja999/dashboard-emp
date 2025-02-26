@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useState } from "react";
 import { PlusCircle as CirclePlus, User } from "lucide-react";
 import {
@@ -13,20 +13,17 @@ import { Button } from "@/components/ui/button";
 import { CompanyForm } from "../FormCreateCustomer";
 import { useAuth } from "@clerk/nextjs";
 
-
 export function HeaderCompanies() {
   const [openModalCreate, setOpenModalCreate] = useState(false);
   const { userId } = useAuth();
-  
+
   if (!userId) {
     return <p>No estás autenticado</p>;
   }
-  
-
 
   return (
     <div className="flex items-center justify-between mb-6">
-      <h2 className="text-2xl font-bold text-gray-900">List of companies</h2>
+      <h2 className="text-2xl font-bold">List of companies</h2>
       <Dialog open={openModalCreate} onOpenChange={setOpenModalCreate}>
         <DialogTrigger asChild>
           <Button>
@@ -46,7 +43,12 @@ export function HeaderCompanies() {
             </DialogTitle>
             <DialogDescription>Crea y Configura tu cliente!</DialogDescription>
           </DialogHeader>
-          <CompanyForm userId={userId} />
+          {/* Pasamos la función onSuccess para cerrar el modal */}
+          <CompanyForm
+            onSuccess={() => {
+              setOpenModalCreate(false); // Cierra el modal
+            }}
+          />
         </DialogContent>
       </Dialog>
     </div>

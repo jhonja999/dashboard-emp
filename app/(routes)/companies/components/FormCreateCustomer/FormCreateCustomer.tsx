@@ -1,11 +1,9 @@
 "use client";
-
 import type { FormEvent } from "react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { toast } from "sonner";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -17,27 +15,22 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { UploadButton } from "@/utils/uploadthing";
-import { UploadCloud, X } from "lucide-react";
 import Image from "next/image";
+import { CloudUpload, X } from "lucide-react";
 
 const countries = [
   "Perú",
   "Argentina",
   "Chile",
   "Colombia",
-  "México",  
+  "México",
   "España",
-  // Agrega más países si lo deseas
 ];
 
-export function CompanyForm() {
+export function CompanyForm({ onSuccess }: { onSuccess?: () => void }) {
   const router = useRouter();
-
-  // Estados de carga y de la URL de imagen
   const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState("");
-
-  // Estados de formulario y errores simples
   const [formData, setFormData] = useState({
     name: "",
     country: "",
@@ -48,37 +41,51 @@ export function CompanyForm() {
   const [errors, setErrors] = useState({
     name: "",
     country: "",
+    phone: "",
+    dni: "",
   });
 
   // Validación básica
   const validateForm = () => {
-    const newErrors = { name: "", country: "" };
+    const newErrors = {
+      name: "",
+      country: "",
+      phone: "",
+      dni: "",
+    };
 
     if (formData.name.length < 2) {
       newErrors.name = "El nombre debe tener al menos 2 caracteres";
     }
+
     if (!formData.country) {
       newErrors.country = "Por favor selecciona un país";
     }
 
+    // Validación del teléfono
+    const phoneRegex = /^\+?[0-9]{1,3}?[-.\s]?(\(?\d{1,4}\)?[-.\s]?)?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/;
+    if (!phoneRegex.test(formData.phone)) {
+      newErrors.phone =
+        "Formato inválido. Ejemplo: +51 999 999 999 o 999-999-999";
+    }
+
+    // Validación del DNI
+    const dniRegex = /^[0-9]{8}$/;
+    if (!dniRegex.test(formData.dni)) {
+      newErrors.dni = "El DNI debe tener exactamente 8 dígitos numéricos";
+    }
+
     setErrors(newErrors);
-    // Retorna true si no hay errores
     return !Object.values(newErrors).some((error) => error);
   };
 
-  // Manejo de envío de formulario
+  // Manejo de envío del formulario
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    console.log("Datos del formulario:", formData);
-
-    if (!validateForm()) {
-      console.log("Validación fallida");
-      return;
-    }
+    if (!validateForm()) return;
 
     try {
       setLoading(true);
-      // Envía datos a tu API
       const response = await axios.post("/api/companies", {
         ...formData,
         imageUrl,
@@ -86,9 +93,12 @@ export function CompanyForm() {
       console.log("Compañía creada correctamente:", response.data);
       toast.success("Cliente creado exitosamente");
 
-      // Redireccionar o refrescar
+      // Llama a onSuccess si existe
+      onSuccess?.();
+
+      // Redirige a la lista de compañías
       router.refresh();
-      router.push("/companies"); // Ajusta la ruta si lo necesitas
+      router.push("/companies");
     } catch (error) {
       console.error("Error al crear la compañía:", error);
       toast.error("Error al crear el cliente");
@@ -100,35 +110,34 @@ export function CompanyForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="max-w-3xl mx-auto p-4 md:p-6 space-y-6 bg-white rounded-lg shadow-sm"
+      className="max-w-3xl p-6 space-y-6 bg-background rounded-lg shadow-md dark:bg-secondary"
     >
-      <div className="space-y-2">
-        <h2 className="text-xl font-semibold">Crear Nueva Compañía</h2>
-        <p className="text-sm text-gray-500">
-          Completa los datos para crear una nueva compañía.
-        </p>
-      </div>
-
-      {/* GRID de dos columnas en pantallas medianas en adelante */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+      {/* GRID de dos columnas */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Campo: Nombre */}
         <div className="space-y-2">
-          <Label htmlFor="name">Nombre de la Empresa</Label>
+          <Label htmlFor="name" className="text-sm font-medium text-foreground">
+            Nombre de la Empresa
+          </Label>
           <Input
             id="name"
             value={formData.name}
             onChange={(e) =>
               setFormData({ ...formData, name: e.target.value })
             }
-            placeholder="Nombre de la Empresa"
-            className="w-full"
+            placeholder="Ej. Mi Empresa S.A."
+            className="w-full border-input bg-background focus:border-primary focus:ring-primary"
           />
-          {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
+          {errors.name && (
+            <p className="text-sm text-destructive">{errors.name}</p>
+          )}
         </div>
 
         {/* Campo: País */}
         <div className="space-y-2">
-          <Label htmlFor="country">País</Label>
+          <Label htmlFor="country" className="text-sm font-medium text-foreground">
+            País
+          </Label>
           <Select
             value={formData.country}
             onValueChange={(value) =>
@@ -136,9 +145,9 @@ export function CompanyForm() {
             }
           >
             <SelectTrigger id="country" className="w-full">
-              <SelectValue placeholder="Seleccione un país" />
+              <SelectValue placeholder="Selecciona un país" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-background text-foreground">
               {countries.map((country) => (
                 <SelectItem key={country} value={country}>
                   {country}
@@ -147,41 +156,50 @@ export function CompanyForm() {
             </SelectContent>
           </Select>
           {errors.country && (
-            <p className="text-sm text-red-500">{errors.country}</p>
+            <p className="text-sm text-destructive">{errors.country}</p>
           )}
         </div>
 
         {/* Campo: Sitio Web */}
         <div className="space-y-2">
-          <Label htmlFor="website">Sitio Web</Label>
+          <Label htmlFor="website" className="text-sm font-medium text-foreground">
+            Sitio Web
+          </Label>
           <Input
             id="website"
             value={formData.website}
             onChange={(e) =>
               setFormData({ ...formData, website: e.target.value })
             }
-            placeholder="https://ejemplo.com"
-            className="w-full"
+            placeholder="https://miempresa.com"
+            className="w-full border-input bg-background focus:border-primary focus:ring-primary"
           />
         </div>
 
         {/* Campo: Teléfono */}
         <div className="space-y-2">
-          <Label htmlFor="phone">Teléfono</Label>
+          <Label htmlFor="phone" className="text-sm font-medium text-foreground">
+            Teléfono
+          </Label>
           <Input
             id="phone"
             value={formData.phone}
             onChange={(e) =>
               setFormData({ ...formData, phone: e.target.value })
             }
-            placeholder="+51........"
-            className="w-full"
+            placeholder="+51 999 999 999"
+            className="w-full border-input bg-background focus:border-primary focus:ring-primary"
           />
+          {errors.phone && (
+            <p className="text-sm text-destructive">{errors.phone}</p>
+          )}
         </div>
 
         {/* Campo: DNI */}
         <div className="space-y-2">
-          <Label htmlFor="dni">DNI</Label>
+          <Label htmlFor="dni" className="text-sm font-medium text-foreground">
+            DNI
+          </Label>
           <Input
             id="dni"
             value={formData.dni}
@@ -189,80 +207,76 @@ export function CompanyForm() {
               setFormData({ ...formData, dni: e.target.value })
             }
             placeholder="12345678"
-            className="w-full"
+            className="w-full border-input bg-background focus:border-primary focus:ring-primary"
           />
+          {errors.dni && (
+            <p className="text-sm text-destructive">{errors.dni}</p>
+          )}
         </div>
       </div>
 
-      {/* Imagen de Perfil (ocupa todo el ancho) - MEJORADO */}
-      <div className="space-y-2">
-        <Label>Imagen de Perfil</Label>
-        <div className="mt-1">
+      {/* Subida de Imagen */}
+      <div className="space-y-4">
+        <Label className="flex items-center text-sm font-medium text-foreground">
+          <CloudUpload className="mr-2 h-5 w-5 text-primary" />
+          Imagen de Perfil
+        </Label>
+        <div className="flex flex-col items-center space-y-4">
           {!imageUrl ? (
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer h-64">
-              <UploadButton
-                endpoint="imageUploader"
-                onClientUploadComplete={(res) => {
-                  console.log("Upload completado:", res);
-                  if (res && res[0]) {
-                    setImageUrl(res[0].url);
-                    toast.success("Imagen subida exitosamente");
-                  }
-                }}
-                onUploadError={(error) => {
-                  console.error("Error al subir la imagen:", error);
-                  toast.error("Error al subir la imagen");
-                }}
-                className="w-full h-full ut-allowed-content:w-full ut-allowed-content:h-full ut-button:w-full ut-button:h-full ut-button:flex ut-button:flex-col ut-button:items-center ut-button:justify-center ut-button:gap-3 ut-button:bg-transparent ut-button:border-0 ut-button:shadow-none ut-button:p-0"
-              />
-              <div className="absolute pointer-events-none flex flex-col items-center justify-center">
-                <UploadCloud className="h-12 w-12 text-gray-400 mb-2" />
-                <p className="text-xs text-gray-500 mt-10">
-                  PNG, JPG, GIF hasta 10MB
-                </p>
-              </div>
-            </div>
+            <UploadButton
+              endpoint="imageUploader"
+              onClientUploadComplete={(res) => {
+                if (res && res[0]) {
+                  setImageUrl(res[0].url);
+                  toast.success("Imagen subida exitosamente");
+                }
+              }}
+              onUploadError={(error) => {
+                console.error("Error al subir la imagen:", error);
+                toast.error("Error al subir la imagen");
+              }}
+              className="bg-primary hover:bg-primary/90 text-primary-foreground dark:bg-secondary dark:hover:bg-secondary/90 dark:text-secondary-foreground px-6 py-3 rounded-md border-2 border-dotted border-primary transition-colors flex items-center justify-center gap-2 z-50"
+            >
+            </UploadButton>
           ) : (
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center bg-gray-50 h-64 relative">
-              <div className="relative mb-4">
-                <Image
-                  src={imageUrl}
-                  alt="Previsualización"
-                  width={200}
-                  height={200}
-                  className="w-40 h-40 object-cover rounded-md shadow-md"
-                />
-              </div>
+            <div className="space-y-2">
+              <Image
+                src={imageUrl}
+                alt="Previsualización"
+                width={200}
+                height={200}
+                className="w-40 h-40 object-cover rounded-md shadow-md border-2 border-border"
+              />
               <Button
                 type="button"
                 variant="destructive"
                 size="sm"
                 onClick={() => setImageUrl("")}
-                className="flex items-center gap-1"
+                className="flex items-center gap-2"
               >
-                <X className="w-4 h-4" />
-                <span>Quitar imagen</span>
+                <X className="h-4 w-4" />
+                <span>Quitar Imagen</span>
               </Button>
             </div>
           )}
         </div>
       </div>
 
-      {/* Botones de acción */}
+      {/* Botones de Acción */}
       <div className="flex flex-col sm:flex-row gap-3 sm:justify-end pt-4">
         <Button
           type="button"
           variant="outline"
           onClick={() => router.back()}
           disabled={loading}
-          className="w-full sm:w-auto"
+          className="w-full sm:w-auto border-border bg-red-500 hover:bg-red-900 transition-colors"
         >
           Cancelar
         </Button>
-        <Button 
-          type="submit" 
+        <Button
+          type="submit"
           disabled={loading}
-          className="w-full sm:w-auto"
+          className="w-full sm:w-auto bg-primary hover:bg-primary/90 border-primary text-primary-foreground transition-colors"
         >
           {loading ? "Creando..." : "Crear Cliente"}
         </Button>
