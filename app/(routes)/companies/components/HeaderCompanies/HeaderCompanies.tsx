@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { PlusCircle as CirclePlus, User } from "lucide-react";
+import { AlertTriangle, PlusCircle as CirclePlus, User } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -17,9 +17,16 @@ export function HeaderCompanies() {
   const [openModalCreate, setOpenModalCreate] = useState(false);
   const { userId } = useAuth();
 
-  if (!userId) {
-    return <p>No estás autenticado</p>;
-  }
+  // Verificación de autenticación
+    if (!userId) {
+      return (
+        <div className="flex items-center text-red-500 gap-2 p-4 border border-red-300 bg-red-50 rounded-lg">
+          <AlertTriangle className="h-6 w-6" />
+          <p>No estás autenticado</p>
+        </div>
+      );
+    }
+  
 
   return (
     <div className="flex items-center justify-between mb-6">

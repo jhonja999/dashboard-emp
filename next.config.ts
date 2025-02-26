@@ -1,15 +1,12 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   images: {
-    // Agrega 'utfs.io' a la lista de dominios permitidos
     domains: [
       "www.flaticon.com",
       "images.unsplash.com",
       "plus.unsplash.com",
       "utfs.io",
     ],
-    // Si deseas usar remotePatterns, añade uno para utfs.io
     remotePatterns: [
       {
         protocol: "https",
@@ -35,12 +32,6 @@ const nextConfig: NextConfig = {
   },
   compiler: {
     removeConsole: process.env.NODE_ENV === "production",
-  },
-  compilerOptions: {
-    moduleResolution: "node",
-    allowJs: true,
-    strict: true,
-    noEmit: true,
   },
   reactStrictMode: true,
   swcMinify: true,

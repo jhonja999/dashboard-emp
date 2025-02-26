@@ -1,7 +1,7 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 # DashboardEmp
  Dashboard Empresarial NextJS 15, React, Tailwind CSS, Shadcn, ClerkJS
-
+ https://uploadthing.com,  https://neon.tech, npx prisma studio, 
 ## Getting Started
 
 First, run the development server:
