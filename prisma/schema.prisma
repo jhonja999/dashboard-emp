@@ -8,46 +8,69 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
+  id         String     @id @default(cuid())
+  email      String     @unique
+  name       String?
   businesses Business[]
-  contacts  Contact[]
-  events    Event[]
+  contacts   Contact[]
+  events     Event[]
 }
 
+model Company {
+  id        String   @id @default(cuid())
+  name      String
+  country   String
+  website   String?
+  phone     String?
+  dni       String?
+  imageUrl  String?
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+
+
+
 model Business {
-  id          String   @id @default(cuid())
-  name        String
-  description String?
-  userId      String
-  user        User     @relation(fields: [userId], references: [id])
-  contacts    Contact[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String    @id @default(cuid())
+  name         String
+  country      String
+  website      String
+  phone        String
+  dni          String
+  profileImage String?
+  description  String?
+  userId       String
+  user         User      @relation(fields: [userId], references: [id])
+  contacts     Contact[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 }
 
 model Contact {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   name        String
   email       String
   phone       String?
   businessId  String
-  business    Business @relation(fields: [businessId], references: [id])
+  business    Business  @relation(fields: [businessId], references: [id])
   userId      String
-  user        User     @relation(fields: [userId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  user        User      @relation(fields: [userId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model Event {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   title       String
   description String?
   startDate   DateTime
   endDate     DateTime
   userId      String
-  user        User     @relation(fields: [userId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  user        User      @relation(fields: [userId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }

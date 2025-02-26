@@ -1,5 +1,6 @@
 import {
   BarChart4,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   Building2,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   PanelsTopLeft, //otro icono d dashboard
@@ -20,7 +21,6 @@ export const dataGeneralSideBar = [
 export const dataToolSideBar = [
   { label: "Faqs", icon: CircleHelpIcon, href: "/faqs" },
   { label: "Analytics", icon: BarChart4, href: "/analytics" },
-  { label: "Businesses", icon: Building2, href: "/businesses" },
 ];
 
 export const dataSupportSideBar = [

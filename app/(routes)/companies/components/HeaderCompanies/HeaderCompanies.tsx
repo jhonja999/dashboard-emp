@@ -1,26 +1,32 @@
-// HeaderCompanies.tsx
-"use client";
-
-import { Button } from "@/components/ui/button";
+"use client"
+import React, { useState } from "react";
+import { PlusCircle as CirclePlus, User } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
-import { CirclePlus } from "lucide-react";
-import * as React from "react";
-import { useState } from "react";
-import { FormCreateCustomer } from "../FormCreateCustomer/FormCreateCustomer";
+import { DialogTrigger } from "@radix-ui/react-dialog";
+import { Button } from "@/components/ui/button";
+import { CompanyForm } from "../FormCreateCustomer";
+import { useAuth } from "@clerk/nextjs";
+
 
 export function HeaderCompanies() {
   const [openModalCreate, setOpenModalCreate] = useState(false);
+  const { userId } = useAuth();
+  
+  if (!userId) {
+    return <p>No estás autenticado</p>;
+  }
+  
+
 
   return (
-    <div className="flex items-center justify-between">
-      <h2 className="text-2xl">List of companies</h2>
+    <div className="flex items-center justify-between mb-6">
+      <h2 className="text-2xl font-bold text-gray-900">List of companies</h2>
       <Dialog open={openModalCreate} onOpenChange={setOpenModalCreate}>
         <DialogTrigger asChild>
           <Button>
@@ -30,12 +36,17 @@ export function HeaderCompanies() {
         </DialogTrigger>
         <DialogContent className="sm:max-w-[625px]">
           <DialogHeader>
-            <DialogTitle>Crea un Cliente</DialogTitle>
-            <DialogDescription>
-              Crea y Configura tu cliente!
-            </DialogDescription>
+            <DialogTitle>
+              <div className="flex items-center gap-3">
+                <User className="h-6 w-6 text-blue-500" />
+                <span className="text-xl font-semibold">
+                  Crear Nuevo Cliente
+                </span>
+              </div>
+            </DialogTitle>
+            <DialogDescription>Crea y Configura tu cliente!</DialogDescription>
           </DialogHeader>
-          <FormCreateCustomer/>
+          <CompanyForm userId={userId} />
         </DialogContent>
       </Dialog>
     </div>

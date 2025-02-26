@@ -1,35 +1,13 @@
-/**
- * FormCreateCustomer.tsx
- *
- * Componente de formulario para crear nuevos clientes en el sistema.
- * Incluye validación de campos, carga de imágenes mediante UploadThing,
- * y manejo de estado del formulario usando react-hook-form y zod.
- *
- * @requires @hookform/resolvers/zod - Para la validación del formulario
- * @requires react-hook-form - Para el manejo del estado del formulario
- * @requires uploadthing - Para la carga de imágenes
- * @requires shadcn/ui - Para los componentes de UI
- */
-
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, FieldErrors } from "react-hook-form";
-import { z } from "zod";
+import type { FormEvent } from "react";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import axios from "axios";
+import { UploadButton } from "@uploadthing/react";
 import { toast } from "sonner";
-import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -38,302 +16,237 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { UploadButton } from "@/utils/uploadthing";
+import { Label } from "@/components/ui/label";
+import { UploadCloud, X } from "lucide-react";
 
-import { Loader2, User } from "lucide-react";
+const countries = [
+  "Argentina",
+  "Chile",
+  "Colombia",
+  "México",
+  "Perú",
+  "España",
+  // Agrega más países si lo deseas
+];
 
-/**
- * Props del componente FormCreateCustomer.
- */
-export type FormCreateCustomerProps = {
-  /** Función que se ejecuta cuando el formulario se envía exitosamente */
-  onSuccess?: () => void;
-};
+export function CompanyForm() {
+  const router = useRouter();
 
-/* ------------------------------------------------------------------
-   Validaciones personalizadas
-   ------------------------------------------------------------------ */
+  // Estados de carga y de la URL de imagen
+  const [loading, setLoading] = useState(false);
+  const [imageUrl, setImageUrl] = useState("");
 
-// Permite URLs con o sin protocolo, por ejemplo "www.admin.com" o "https://admin.com"
-const customUrlRegex = /^(?:https?:\/\/)?(www\.)?[\w-]+(\.[\w-]+)+.*$/;
-const websiteSchema = z
-  .string()
-  .refine(
-    (val) => customUrlRegex.test(val),
-    "Por favor ingresa una URL válida (ej. https://admin.com)"
-  );
-
-// DNI: 8 dígitos numéricos (sin letra)
-const dniSchema = z
-  .string()
-  .regex(/^[0-9]{8}$/, "El DNI debe tener 8 dígitos (sin letra).");
-
-/**
- * Schema de validación para el formulario.
- * Se hace opcional el campo profileImage, para permitir no subir imagen.
- */
-const formSchema = z.object({
-  name: z.string().min(2, "El nombre debe tener al menos 2 caracteres"),
-  country: z.string().min(2, "Por favor selecciona un país"),
-  website: websiteSchema,
-  phone: z
-    .string()
-    .min(6, "El teléfono debe tener al menos 6 caracteres")
-    .regex(/^\+?[\d\s-]+$/, "Formato de teléfono inválido"),
-  dni: dniSchema,
-  profileImage: z.string().optional(), // El usuario puede no subir imagen
-});
-
-/**
- * Tipo inferido del schema para usar en el formulario
- */
-type FormValues = z.infer<typeof formSchema>;
-
-/**
- * Componente principal del formulario de creación de cliente.
- *
- * @param {FormCreateCustomerProps} props - Props del componente
- * @returns {JSX.Element} Formulario renderizado
- */
-export function FormCreateCustomer({ onSuccess }: FormCreateCustomerProps) {
-  // Estado para manejar la URL de la imagen subida
-  const [imageUrl, setImageUrl] = useState<string>("");
-
-  // Inicialización del formulario con react-hook-form
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: "",
-      country: "",
-      website: "",
-      phone: "",
-      dni: "",
-      profileImage: undefined,
-    },
-    mode: "onChange", // Valida en tiempo real
+  // Estados de formulario y errores simples
+  const [formData, setFormData] = useState({
+    name: "",
+    country: "",
+    website: "",
+    phone: "",
+    dni: "",
+  });
+  const [errors, setErrors] = useState({
+    name: "",
+    country: "",
   });
 
-  const { isValid, isSubmitting } = form.formState;
+  // Validación básica
+  const validateForm = () => {
+    const newErrors = { name: "", country: "" };
 
-  /**
-   * Manejador del envío del formulario
-   * @param {FormValues} values - Valores del formulario
-   */
-  const onSubmit = async (values: FormValues) => {
+    if (formData.name.length < 2) {
+      newErrors.name = "El nombre debe tener al menos 2 caracteres";
+    }
+    if (!formData.country) {
+      newErrors.country = "Por favor selecciona un país";
+    }
+
+    setErrors(newErrors);
+    // Retorna true si no hay errores
+    return !Object.values(newErrors).some((error) => error);
+  };
+
+  // Manejo de envío de formulario
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    console.log("Datos del formulario:", formData);
+
+    if (!validateForm()) {
+      console.log("Validación fallida");
+      return;
+    }
+
     try {
-      // Lógica para enviar los datos a tu API
-      console.log("Datos del formulario:", values);
-
-      // Notificar éxito
+      setLoading(true);
+      // Envía datos a tu API
+      const response = await axios.post("/api/companies", {
+        ...formData,
+        imageUrl,
+      });
+      console.log("Compañía creada correctamente:", response.data);
       toast.success("Cliente creado exitosamente");
-      onSuccess?.();
 
-      // Reset del formulario tras éxito
-      form.reset();
-      setImageUrl("");
+      // Redireccionar o refrescar
+      router.refresh();
+      router.push("/companies"); // Ajusta la ruta si lo necesitas
     } catch (error) {
-      console.error("Error al crear el cliente:", error);
+      console.error("Error al crear la compañía:", error);
       toast.error("Error al crear el cliente");
+    } finally {
+      setLoading(false);
     }
   };
 
-  /**
-   * Callback para manejar errores al enviar el formulario
-   */
-  const onError = (errors: FieldErrors<FormValues>) => {
-    toast.error("Por favor corrige los campos requeridos antes de continuar.");
-    console.error("Errores en el formulario:", errors);
-  };
-
   return (
-    <div className="bg-background p-4 rounded-md shadow-sm">
-      {/* Mensaje si el formulario no es válido */}
-      {!isValid && (
-        <p className="text-red-400 text-sm mb-2">
-          Corrige los campos marcados antes de enviar.
-        </p>
-      )}
+    <form
+      onSubmit={handleSubmit}
+      className="max-w-3xl mx-auto p-6 space-y-6 bg-white rounded shadow-sm"
+    >
+      <h2 className="text-xl font-semibold">Crear Nueva Compañía</h2>
+      <p className="text-sm text-gray-500">
+        Completa los datos para crear una nueva compañía.
+      </p>
 
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit, onError)}
-          className="space-y-6"
-        >
-          <div className="grid grid-cols-2 gap-4">
-            {/* Campo: Nombre de la Empresa */}
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nombre de la Empresa</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ingrese el nombre..." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+      {/* GRID de dos columnas en pantallas medianas en adelante */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Campo: Nombre */}
+        <div className="space-y-2">
+          <Label htmlFor="name">Nombre de la Empresa</Label>
+          <Input
+            id="name"
+            value={formData.name}
+            onChange={(e) =>
+              setFormData({ ...formData, name: e.target.value })
+            }
+            placeholder="Nombre de la Empresa"
+          />
+          {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
+        </div>
 
-            {/* Campo: País */}
-            <FormField
-              control={form.control}
-              name="country"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>País</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccione un país" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="Spain">España</SelectItem>
-                      <SelectItem value="France">Francia</SelectItem>
-                      <SelectItem value="Germany">Alemania</SelectItem>
-                      <SelectItem value="Italy">Italia</SelectItem>
-                      <SelectItem value="Portugal">Portugal</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        {/* Campo: País */}
+        <div className="space-y-2">
+          <Label htmlFor="country">País</Label>
+          <Select
+            value={formData.country}
+            onValueChange={(value) =>
+              setFormData({ ...formData, country: value })
+            }
+          >
+            <SelectTrigger id="country">
+              <SelectValue placeholder="Seleccione un país" />
+            </SelectTrigger>
+            <SelectContent>
+              {countries.map((country) => (
+                <SelectItem key={country} value={country}>
+                  {country}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {errors.country && (
+            <p className="text-sm text-red-500">{errors.country}</p>
+          )}
+        </div>
 
-            {/* Campo: Sitio Web */}
-            <FormField
-              control={form.control}
-              name="website"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Sitio Web</FormLabel>
-                  <FormControl>
-                    <Input placeholder="https://..." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        {/* Campo: Sitio Web */}
+        <div className="space-y-2">
+          <Label htmlFor="website">Sitio Web</Label>
+          <Input
+            id="website"
+            value={formData.website}
+            onChange={(e) =>
+              setFormData({ ...formData, website: e.target.value })
+            }
+            placeholder="https://ejemplo.com"
+          />
+        </div>
 
-            {/* Campo: Teléfono */}
-            <FormField
-              control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Teléfono</FormLabel>
-                  <FormControl>
-                    <Input placeholder="+51..." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        {/* Campo: Teléfono */}
+        <div className="space-y-2">
+          <Label htmlFor="phone">Teléfono</Label>
+          <Input
+            id="phone"
+            value={formData.phone}
+            onChange={(e) =>
+              setFormData({ ...formData, phone: e.target.value })
+            }
+            placeholder="+1234567890"
+          />
+        </div>
 
-            {/* Campo: DNI */}
-            <FormField
-              control={form.control}
-              name="dni"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>DNI</FormLabel>
-                  <FormControl>
-                    <Input placeholder="12345678" {...field} />
-                  </FormControl>
-                  <FormDescription>
-                    Formato: 8 dígitos numéricos (sin letra)
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        {/* Campo: DNI */}
+        <div className="space-y-2">
+          <Label htmlFor="dni">DNI</Label>
+          <Input
+            id="dni"
+            value={formData.dni}
+            onChange={(e) =>
+              setFormData({ ...formData, dni: e.target.value })
+            }
+            placeholder="12345678"
+          />
+        </div>
 
-            {/* Campo: Imagen de Perfil (opcional) con UploadThing */}
-            <FormField
-              control={form.control}
-              name="profileImage"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Imagen de Perfil (opcional)</FormLabel>
-                  <FormControl>
-                    <div className="p-3 bg-slate-700/20 rounded-lg border-dashed border-2 border-slate-300 flex flex-col gap-2 items-center justify-center text-center">
-                      <UploadButton
-                        endpoint="profileImage"
-                        onClientUploadComplete={(res) => {
-                          if (res && res.length > 0) {
-                            const url = res[0].url;
-                            // Actualiza el valor del formulario
-                            field.onChange(url);
-                            // Guarda la imagen localmente para previsualización
-                            setImageUrl(url);
-                            toast.success("Foto subida correctamente");
-                          }
-                        }}
-                        onUploadError={(error: Error) => {
-                          console.error("Error al subir la imagen:", error);
-                          toast.error("Error al subir la imagen");
-                        }}
-                        // Clases para hacer el botón más visible
-                        className="text-lg font-bold px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded"
-                      />
-                      {!imageUrl ? (
-                        <div className="flex flex-col items-center text-gray-400">
-                          <User className="w-8 h-8" />
-                          <p className="text-sm">Sin archivos seleccionados</p>
-                        </div>
-                      ) : (
-                        <div className="relative h-20 w-20 rounded-full overflow-hidden">
-                          <Image
-                            src={imageUrl}
-                            alt="Imagen de perfil"
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-                      )}
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          {/* Botones del formulario */}
-          <div className="flex justify-end gap-4">
-            <Button
-              variant="outline"
-              type="button"
-              onClick={() => {
-                form.reset();
-                setImageUrl("");
-                toast("Formulario reseteado");
+        {/* Imagen de Perfil (ocupa 2 columnas) */}
+        <div className="space-y-2 col-span-1 md:col-span-2">
+          <Label>Imagen de Perfil</Label>
+          <div className="border rounded-lg p-4 text-center">
+            <UploadButton
+              endpoint="imageUploader" // Ajusta a tu endpoint de UploadThing
+              onClientUploadComplete={(res) => {
+                console.log("Upload completado:", res);
+                if (res?.[0]) {
+                  setImageUrl(res[0].url);
+                  toast.success("Imagen subida exitosamente");
+                }
               }}
+              onUploadError={(error: Error) => {
+                console.error("Error al subir la imagen:", error);
+                toast.error("Error al subir la imagen");
+              }}
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 rounded hover:bg-blue-400"
             >
-              Cancelar
-            </Button>
+              <UploadCloud className="w-4 h-4" />
+              <span>Choose File</span>
+            </UploadButton>
 
-            <Button
-              type="submit"
-              disabled={!isValid || isSubmitting}
-              className="bg-blue-600 text-white hover:bg-blue-700"
-            >
-              {isSubmitting ? (
-                <div className="flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>Creando...</span>
-                </div>
-              ) : (
-                "Crear Cliente"
-              )}
-            </Button>
+            {imageUrl && (
+              <div className="mt-4 flex flex-col items-center">
+                <img
+                  src={imageUrl}
+                  alt="Previsualización"
+                  className="w-24 h-24 object-cover rounded-md border"
+                />
+                <Button
+                  variant="destructive"
+                  onClick={() => setImageUrl("")}
+                  className="mt-2"
+                >
+                  <X className="w-4 h-4 mr-1" />
+                  Quitar imagen
+                </Button>
+              </div>
+            )}
           </div>
-        </form>
-      </Form>
-    </div>
+        </div>
+      </div>
+
+      {/* Botones de acción */}
+      <div className="flex gap-4 justify-end">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => {
+            // Ejemplo: volver atrás
+            router.back();
+          }}
+          disabled={loading}
+        >
+          Cancelar
+        </Button>
+        <Button type="submit" disabled={loading}>
+          {loading ? "Creando..." : "Crear Cliente"}
+        </Button>
+      </div>
+    </form>
   );
 }
