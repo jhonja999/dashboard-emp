@@ -1,3 +1,4 @@
+// lib/uploadthing.ts
 import {
   generateReactHelpers,
   generateUploadButton,
@@ -6,9 +7,9 @@ import {
 
 import type { OurFileRouter } from "@/app/api/uploadthing/core";
 
-
+// Generate the React components
 export const UploadButton = generateUploadButton<OurFileRouter>();
 export const UploadDropzone = generateUploadDropzone<OurFileRouter>();
 
-// Generar helpers para el cliente
+// Generate React helpers for the client
 export const { useUploadThing, uploadFiles } = generateReactHelpers<OurFileRouter>();
