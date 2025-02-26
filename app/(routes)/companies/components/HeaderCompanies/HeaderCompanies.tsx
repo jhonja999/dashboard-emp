@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { DialogTrigger } from "@radix-ui/react-dialog";
 import { Button } from "@/components/ui/button";
-import { CompanyForm } from "../FormCreateCustomer";
+import { FormCreateCustomer } from "../FormCreateCustomer";
 import { useAuth } from "@clerk/nextjs";
 
 export function HeaderCompanies() {
@@ -51,7 +51,7 @@ export function HeaderCompanies() {
             <DialogDescription>Crea y Configura tu cliente!</DialogDescription>
           </DialogHeader>
           {/* Pasamos la función onSuccess para cerrar el modal */}
-          <CompanyForm
+          <FormCreateCustomer
             onSuccess={() => {
               setOpenModalCreate(false); // Cierra el modal
             }}

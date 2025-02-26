@@ -45,7 +45,7 @@ export const columns: ColumnDef<Company>[] = [
             />
           ) : (
             <Image
-              src="/images/company-icon.png"
+              src="/placeholder.webp" // Ruta correcta desde /public/
               alt="Default Profile"
               width={40}
               height={40}
@@ -139,7 +139,7 @@ export const columns: ColumnDef<Company>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem asChild>
-              <Link href={`/company/${id}`}>
+              <Link href={`/companies/${id}`}>
                 <Pencil className="w-4 h-4 mr-2" />
                 Edit
               </Link>

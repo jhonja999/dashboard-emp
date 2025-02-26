@@ -1,9 +1,11 @@
 "use client";
+
 import type { FormEvent } from "react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { toast } from "sonner";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -27,10 +29,21 @@ const countries = [
   "España",
 ];
 
-export function CompanyForm({ onSuccess }: { onSuccess?: () => void }) {
+interface FormCreateCustomerProps {
+  onSuccess?: () => void; // optional callback
+}
+
+/**
+ * FormCreateCustomer - Creates a new Company (POST to /api/companies)
+ */
+export function FormCreateCustomer({ onSuccess }: FormCreateCustomerProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+
+  // Image state
   const [imageUrl, setImageUrl] = useState("");
+
+  // Form data
   const [formData, setFormData] = useState({
     name: "",
     country: "",
@@ -38,6 +51,8 @@ export function CompanyForm({ onSuccess }: { onSuccess?: () => void }) {
     phone: "",
     dni: "",
   });
+
+  // Basic field errors
   const [errors, setErrors] = useState({
     name: "",
     country: "",
@@ -45,7 +60,7 @@ export function CompanyForm({ onSuccess }: { onSuccess?: () => void }) {
     dni: "",
   });
 
-  // Validación básica
+  // Very basic validation
   const validateForm = () => {
     const newErrors = {
       name: "",
@@ -54,22 +69,24 @@ export function CompanyForm({ onSuccess }: { onSuccess?: () => void }) {
       dni: "",
     };
 
+    // Name
     if (formData.name.length < 2) {
       newErrors.name = "El nombre debe tener al menos 2 caracteres";
     }
 
+    // Country
     if (!formData.country) {
       newErrors.country = "Por favor selecciona un país";
     }
 
-    // Validación del teléfono
-    const phoneRegex = /^\+?[0-9]{1,3}?[-.\s]?(\(?\d{1,4}\)?[-.\s]?)?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/;
+    // Phone
+    const phoneRegex =
+      /^\+?[0-9]{1,3}?[-.\s]?(\(?\d{1,4}\)?[-.\s]?)?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/;
     if (!phoneRegex.test(formData.phone)) {
-      newErrors.phone =
-        "Formato inválido. Ejemplo: +51 999 999 999 o 999-999-999";
+      newErrors.phone = "Formato inválido. Ej: +51 999 999 999 o 999-999-999";
     }
 
-    // Validación del DNI
+    // DNI
     const dniRegex = /^[0-9]{8}$/;
     if (!dniRegex.test(formData.dni)) {
       newErrors.dni = "El DNI debe tener exactamente 8 dígitos numéricos";
@@ -79,13 +96,15 @@ export function CompanyForm({ onSuccess }: { onSuccess?: () => void }) {
     return !Object.values(newErrors).some((error) => error);
   };
 
-  // Manejo de envío del formulario
+  // Handle form submit
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
 
     try {
       setLoading(true);
+
+      // POST to /api/companies
       const response = await axios.post("/api/companies", {
         ...formData,
         imageUrl,
@@ -93,10 +112,10 @@ export function CompanyForm({ onSuccess }: { onSuccess?: () => void }) {
       console.log("Compañía creada correctamente:", response.data);
       toast.success("Cliente creado exitosamente");
 
-      // Llama a onSuccess si existe
+      // Optional callback
       onSuccess?.();
 
-      // Redirige a la lista de compañías
+      // Refresh / navigate
       router.refresh();
       router.push("/companies");
     } catch (error) {
@@ -112,9 +131,9 @@ export function CompanyForm({ onSuccess }: { onSuccess?: () => void }) {
       onSubmit={handleSubmit}
       className="max-w-3xl p-6 space-y-6 bg-background rounded-lg shadow-md dark:bg-secondary"
     >
-      {/* GRID de dos columnas */}
+      {/* Grid: 2 columns for fields */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Campo: Nombre */}
+        {/* Name */}
         <div className="space-y-2">
           <Label htmlFor="name" className="text-sm font-medium text-foreground">
             Nombre de la Empresa
@@ -122,10 +141,9 @@ export function CompanyForm({ onSuccess }: { onSuccess?: () => void }) {
           <Input
             id="name"
             value={formData.name}
-            onChange={(e) =>
-              setFormData({ ...formData, name: e.target.value })
-            }
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             placeholder="Ej. Mi Empresa S.A."
+            disabled={loading}
             className="w-full border-input bg-background focus:border-primary focus:ring-primary"
           />
           {errors.name && (
@@ -133,9 +151,12 @@ export function CompanyForm({ onSuccess }: { onSuccess?: () => void }) {
           )}
         </div>
 
-        {/* Campo: País */}
+        {/* Country */}
         <div className="space-y-2">
-          <Label htmlFor="country" className="text-sm font-medium text-foreground">
+          <Label
+            htmlFor="country"
+            className="text-sm font-medium text-foreground"
+          >
             País
           </Label>
           <Select
@@ -143,6 +164,7 @@ export function CompanyForm({ onSuccess }: { onSuccess?: () => void }) {
             onValueChange={(value) =>
               setFormData({ ...formData, country: value })
             }
+            disabled={loading}
           >
             <SelectTrigger id="country" className="w-full">
               <SelectValue placeholder="Selecciona un país" />
@@ -160,9 +182,12 @@ export function CompanyForm({ onSuccess }: { onSuccess?: () => void }) {
           )}
         </div>
 
-        {/* Campo: Sitio Web */}
+        {/* Website */}
         <div className="space-y-2">
-          <Label htmlFor="website" className="text-sm font-medium text-foreground">
+          <Label
+            htmlFor="website"
+            className="text-sm font-medium text-foreground"
+          >
             Sitio Web
           </Label>
           <Input
@@ -172,13 +197,17 @@ export function CompanyForm({ onSuccess }: { onSuccess?: () => void }) {
               setFormData({ ...formData, website: e.target.value })
             }
             placeholder="https://miempresa.com"
+            disabled={loading}
             className="w-full border-input bg-background focus:border-primary focus:ring-primary"
           />
         </div>
 
-        {/* Campo: Teléfono */}
+        {/* Phone */}
         <div className="space-y-2">
-          <Label htmlFor="phone" className="text-sm font-medium text-foreground">
+          <Label
+            htmlFor="phone"
+            className="text-sm font-medium text-foreground"
+          >
             Teléfono
           </Label>
           <Input
@@ -188,6 +217,7 @@ export function CompanyForm({ onSuccess }: { onSuccess?: () => void }) {
               setFormData({ ...formData, phone: e.target.value })
             }
             placeholder="+51 999 999 999"
+            disabled={loading}
             className="w-full border-input bg-background focus:border-primary focus:ring-primary"
           />
           {errors.phone && (
@@ -195,7 +225,7 @@ export function CompanyForm({ onSuccess }: { onSuccess?: () => void }) {
           )}
         </div>
 
-        {/* Campo: DNI */}
+        {/* DNI */}
         <div className="space-y-2">
           <Label htmlFor="dni" className="text-sm font-medium text-foreground">
             DNI
@@ -203,10 +233,9 @@ export function CompanyForm({ onSuccess }: { onSuccess?: () => void }) {
           <Input
             id="dni"
             value={formData.dni}
-            onChange={(e) =>
-              setFormData({ ...formData, dni: e.target.value })
-            }
+            onChange={(e) => setFormData({ ...formData, dni: e.target.value })}
             placeholder="12345678"
+            disabled={loading}
             className="w-full border-input bg-background focus:border-primary focus:ring-primary"
           />
           {errors.dni && (
@@ -215,7 +244,7 @@ export function CompanyForm({ onSuccess }: { onSuccess?: () => void }) {
         </div>
       </div>
 
-      {/* Subida de Imagen */}
+      {/* Image Upload */}
       <div className="space-y-4">
         <Label className="flex items-center text-sm font-medium text-foreground">
           <CloudUpload className="mr-2 h-5 w-5 text-primary" />
@@ -236,8 +265,13 @@ export function CompanyForm({ onSuccess }: { onSuccess?: () => void }) {
                 toast.error("Error al subir la imagen");
               }}
               className="bg-primary hover:bg-primary/90 text-primary-foreground dark:bg-secondary dark:hover:bg-secondary/90 dark:text-secondary-foreground px-6 py-3 rounded-md border-2 border-dotted border-primary transition-colors flex items-center justify-center gap-2 z-50"
-            >
-            </UploadButton>
+              content={{
+                button({ ready }) {
+                  if (!ready) return "Cargando...";
+                  return "Subir imagen";
+                },
+              }}
+            />
           ) : (
             <div className="space-y-2">
               <Image
@@ -262,14 +296,14 @@ export function CompanyForm({ onSuccess }: { onSuccess?: () => void }) {
         </div>
       </div>
 
-      {/* Botones de Acción */}
+      {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row gap-3 sm:justify-end pt-4">
         <Button
           type="button"
           variant="outline"
           onClick={() => router.back()}
           disabled={loading}
-          className="w-full sm:w-auto border-border bg-red-500 hover:bg-red-900 transition-colors"
+          className="w-full sm:w-auto border-border transition-colors"
         >
           Cancelar
         </Button>

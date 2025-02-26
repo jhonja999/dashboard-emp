@@ -1,42 +1,35 @@
-"use client";
-
+import { prisma } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { prisma } from "@/lib/prisma";
-import { notFound } from "next/navigation";
-import { CompanyDetails } from "@/components/CompanyDetails";
+import { CompanyPageClient } from "./components/CompanyPageClient";
 
-interface Params {
-  params: {
-    companyId: string;
-  };
-}
+export default async function CompanyIdPage({
+  params,
+}: {
+  params: { companyId: string };
+}) {
+  // Obtener usuario autenticado
+  const { userId } = await auth();
 
-export default async function CompanyIdPage({ params }: Params) {
-  const { userId } = auth();
-
+  // Si no hay usuario, redirigir a la página de inicio
   if (!userId) {
     return redirect("/");
   }
 
-  const { companyId } = params;
-
-  // Obtener los detalles de la empresa desde la base de datos
+  // Buscar la compañía en la base de datos
   const company = await prisma.company.findUnique({
     where: {
-      id: companyId,
-      userId, // Asegúrate de que la empresa pertenezca al usuario autenticado
+      id: params.companyId,
+      userId: userId, // 🔹 Corregido: Falta el userId en la condición
     },
   });
 
+  // Si no se encuentra la empresa, redirigir a inicio
   if (!company) {
-    return notFound();
+    return redirect("/companies");
   }
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Detalles de la Empresa</h1>
-      <CompanyDetails company={company} />
-    </div>
+    <CompanyPageClient company={company} />
   );
 }
