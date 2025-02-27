@@ -14,12 +14,12 @@ interface CompanyPageClientProps {
 }
 
 export function CompanyPageClient({ company: initialCompany }: CompanyPageClientProps) {
-  const [company, /* setCompany */] = useState<Company>(initialCompany);
+  const [company, setCompany] = useState<Company>(initialCompany);
   const [isEditing, setIsEditing] = useState(false);
-  /* const [isContactDialogOpen, setIsContactDialogOpen] = useState(false); */
+  const [/* isContactDialogOpen */, /* setIsContactDialogOpen */] = useState(false);
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [isLoadingContacts, setIsLoadingContacts] = useState(true);
-
+  
 
   // Fetch contacts for the company
   const fetchContacts = useCallback(async () => {
@@ -39,6 +39,19 @@ export function CompanyPageClient({ company: initialCompany }: CompanyPageClient
     fetchContacts();
   }, [fetchContacts]);
 
+   // Handle company update
+   const handleCompanyUpdate = (updatedCompany: Company) => {
+    setCompany(updatedCompany);
+    setIsEditing(false);
+    // You might want to refresh contacts here as well
+    fetchContacts();
+  };
+  
+  // Handle cancel edit
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header Component */}
@@ -47,7 +60,11 @@ export function CompanyPageClient({ company: initialCompany }: CompanyPageClient
       {/* Company Information */}
       {/* Conditional Rendering: Edit Mode or View Mode */}
       {isEditing ? (
-        <CompanyForm initialData={company}/>
+         <CompanyForm
+         initialData={company}
+         onSuccess={handleCompanyUpdate}
+         onCancel={handleCancelEdit}
+       />
       ) : (
         <CompanyInformation company={company} />
       )}

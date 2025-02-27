@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { CompanyPageClient } from "./components/CompanyPageClient";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 export default async function CompanyIdPage({
   params,
@@ -28,6 +29,11 @@ export default async function CompanyIdPage({
   }
 
   return (
-    <CompanyPageClient company={company} />
+    <div>
+      <div className="fixed top-4 right-4 z-50">
+        <ThemeToggle />
+      </div>
+      <CompanyPageClient company={company} />
+    </div>
   );
 }

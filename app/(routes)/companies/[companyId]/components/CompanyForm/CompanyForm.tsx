@@ -1,7 +1,6 @@
 "use client";
 
 import type React from "react";
-
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
@@ -31,7 +30,7 @@ const countries = [
   "España",
 ];
 
-export function CompanyForm({ initialData, onSuccess }: CompanyFormProps) {
+export function CompanyForm({ initialData, onSuccess, onCancel }: CompanyFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<FormData>({
@@ -55,7 +54,20 @@ export function CompanyForm({ initialData, onSuccess }: CompanyFormProps) {
         );
         console.log("Company updated:", response.data);
         toast.success("Empresa actualizada exitosamente");
-        onSuccess?.(response.data);
+        
+        // Call the onSuccess callback with the updated data
+        if (onSuccess) {
+          onSuccess(response.data);
+        }
+      } else {
+        // Handle create case if needed
+        const response = await axios.post("/api/companies", formData);
+        console.log("Company created:", response.data);
+        toast.success("Empresa creada exitosamente");
+        
+        if (onSuccess) {
+          onSuccess(response.data);
+        }
       }
 
       router.refresh();
@@ -67,9 +79,16 @@ export function CompanyForm({ initialData, onSuccess }: CompanyFormProps) {
     }
   };
 
+  // Handle cancel button click
+  const handleCancel = () => {
+    if (onCancel) {
+      onCancel();
+    }
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-6">
         <div className="space-y-2">
           <Label htmlFor="name">Nombre de la Empresa</Label>
           <Input
@@ -77,6 +96,7 @@ export function CompanyForm({ initialData, onSuccess }: CompanyFormProps) {
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             disabled={loading}
+            required
           />
         </div>
 
@@ -88,6 +108,7 @@ export function CompanyForm({ initialData, onSuccess }: CompanyFormProps) {
               setFormData({ ...formData, country: value })
             }
             disabled={loading}
+            required
           >
             <SelectTrigger>
               <SelectValue placeholder="Selecciona un país" />
@@ -237,13 +258,20 @@ export function CompanyForm({ initialData, onSuccess }: CompanyFormProps) {
         <Button
           type="button"
           variant="outline"
-          onClick={() => router.back()}
           disabled={loading}
+          onClick={handleCancel}
         >
           Cancelar
         </Button>
-        <Button type="submit" disabled={loading}>
-          {loading ? "Guardando..." : "Guardar cambios"}
+        <Button type="submit" disabled={loading || isUploading}>
+          {loading ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Guardando...
+            </>
+          ) : (
+            "Guardar cambios"
+          )}
         </Button>
       </div>
     </form>
