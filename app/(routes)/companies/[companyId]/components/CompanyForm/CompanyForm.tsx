@@ -208,8 +208,8 @@ export function CompanyForm({ initialData, onSuccess }: CompanyFormProps) {
                         <div className="flex items-center gap-2">
                           {isUploading ? (
                             <>
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                              <span>Subiendo...</span>
+                              <Loader2 className="h-4 w-4 animate-spin dark:text-blue-500" />
+                              <span className="dark:text-blue-500">Subiendo...</span>
                             </>
                           ) : (
                             <>

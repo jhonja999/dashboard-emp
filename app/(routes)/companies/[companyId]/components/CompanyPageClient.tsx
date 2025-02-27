@@ -8,13 +8,14 @@ import type { Company, Contact } from "@prisma/client";
 import { CompanyInformation } from "./CompanyInformation";
 import { ContactList } from "./ContactList";
 import { HeaderCompanyId } from "./Header";
+import { CompanyForm } from "./CompanyForm/CompanyForm";
 interface CompanyPageClientProps {
   company: Company;
 }
 
 export function CompanyPageClient({ company: initialCompany }: CompanyPageClientProps) {
   const [company, /* setCompany */] = useState<Company>(initialCompany);
-  const [/* isEditing */, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   /* const [isContactDialogOpen, setIsContactDialogOpen] = useState(false); */
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [isLoadingContacts, setIsLoadingContacts] = useState(true);
@@ -44,7 +45,12 @@ export function CompanyPageClient({ company: initialCompany }: CompanyPageClient
       <HeaderCompanyId companyId={company.id} onEdit={() => setIsEditing(true)} />
 
       {/* Company Information */}
-      <CompanyInformation company={company} />
+      {/* Conditional Rendering: Edit Mode or View Mode */}
+      {isEditing ? (
+        <CompanyForm initialData={company}/>
+      ) : (
+        <CompanyInformation company={company} />
+      )}
 
       {/* Contact List */}
       <div className="space-y-4">
