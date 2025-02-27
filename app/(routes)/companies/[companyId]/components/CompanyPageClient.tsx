@@ -12,7 +12,7 @@ interface CompanyPageClientProps {
 
 export function CompanyPageClient({ company }: CompanyPageClientProps) {
   const [isEditing, setIsEditing] = useState(false)
-  const [currentCompany, setCurrentCompany] = useState(company)
+  const [currentCompany, setCurrentCompany] = useState<Company>(company)
 
   const handleEditSuccess = (updatedCompany: Company) => {
     setCurrentCompany(updatedCompany)

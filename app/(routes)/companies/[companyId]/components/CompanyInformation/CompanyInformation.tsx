@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import type { CompanyInformationProps } from "./CompanyInformation.types"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Globe, Phone, BadgeIcon as IdCard, MapPin } from "lucide-react"
-import Image from "next/image"
+import type { CompanyInformationProps } from "./CompanyInformation.types";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Globe, Phone, MapPin, IdCardIcon } from "lucide-react";
+import Image from "next/image";
 
 export function CompanyInformation({ company }: CompanyInformationProps) {
   return (
@@ -56,7 +56,7 @@ export function CompanyInformation({ company }: CompanyInformationProps) {
 
                 {company.dni && (
                   <div className="flex items-center gap-2">
-                    <IdCard className="h-5 w-5 text-muted-foreground" />
+                    <IdCardIcon className="h-5 w-5 text-muted-foreground" />
                     <span>DNI: {company.dni}</span>
                   </div>
                 )}
@@ -65,38 +65,33 @@ export function CompanyInformation({ company }: CompanyInformationProps) {
           </div>
         </CardContent>
       </Card>
+
+      {/* Sección de contactos */}
+      <div className="rounded-lg shadow-md bg-background p-6 col-span-full lg:col-span-1">
+        <div className="flex items-center justify-between gap-x-2 mb-4">
+          <div className="flex items-center gap-x-2">
+            {/* Ícono de usuario */}
+            <svg
+              className="w-5 h-5 text-gray-500"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5.121 17.804A15.954 15.954 0 0112 15c2.162 0 4.193.432 6.121 1.204M16 11a4 4 0 10-8 0 4 4 0 008 0z"
+              />
+            </svg>
+            <p className="font-semibold">Contactos</p>
+          </div>
+          {/* Botón para agregar nuevo contacto */}
+          <button className="text-sm font-medium text-primary hover:underline">
+            Agregar Contacto
+          </button>
+        </div>
+      </div>
     </div>
-  )
+  );
 }
-
-
-
-
-
- {/* Sección de contactos */}
- <div className="rounded-lg shadow-md bg-background p-6 col-span-full lg:col-span-1">
- <div className="flex items-center justify-between gap-x-2 mb-4">
-   <div className="flex items-center gap-x-2">
-     {/* Ícono de usuario */}
-     <svg
-       className="w-5 h-5 text-gray-500"
-       fill="none"
-       viewBox="0 0 24 24"
-       stroke="currentColor"
-     >
-       <path
-         strokeLinecap="round"
-         strokeLinejoin="round"
-         strokeWidth={2}
-         d="M5.121 17.804A15.954 15.954 0 0112 15c2.162 0 4.193.432 6.121 1.204M16 11a4 4 0 10-8 0 4 4 0 008 0z"
-       />
-     </svg>
-     <p className="font-semibold">Contactos</p>
-   </div>
-   {/* Botón para agregar nuevo contacto */}
-   <button className="text-sm font-medium text-primary hover:underline">
-     Agregar Contacto
-   </button>
- </div>
-
-</div>

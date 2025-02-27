@@ -2,7 +2,7 @@ import type { Company } from "@prisma/client"
 
 export interface CompanyFormProps {
   initialData: Company | null
-  onSuccess?: () => void
+  onSuccess?: (updatedCompany: Company) => void
 }
 
 export interface FormData {
