@@ -18,10 +18,8 @@ export default async function CompanyIdPage({
 
   // Buscar la compañía en la base de datos
   const company = await prisma.company.findUnique({
-    where: {
-      id: params.companyId,
-      userId: userId, // 🔹 Corregido: Falta el userId en la condición
-    },
+    where: { id: params.companyId, userId },
+    include: { Contact: true }, // Fetch associated contacts
   });
 
   // Si no se encuentra la empresa, redirigir a inicio

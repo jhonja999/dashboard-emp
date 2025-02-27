@@ -1,36 +1,60 @@
-"use client"
+//pagina individual de cada company
+"use client";
 
-import { useState } from "react"
-import type { Company } from "@prisma/client"
-import { CompanyForm } from "./CompanyForm"
-import { CompanyInformation } from "./CompanyInformation"
-import { HeaderCompanyId } from "./Header/Header"
-
+import { useState, useEffect, useCallback } from "react";
+import axios from "axios";
+import { toast } from "sonner";
+import type { Company, Contact } from "@prisma/client";
+import { CompanyInformation } from "./CompanyInformation";
+import { ContactList } from "./ContactList";
+import { HeaderCompanyId } from "./Header";
 interface CompanyPageClientProps {
-  company: Company
+  company: Company;
 }
 
-export function CompanyPageClient({ company }: CompanyPageClientProps) {
-  const [isEditing, setIsEditing] = useState(false)
-  const [currentCompany, setCurrentCompany] = useState<Company>(company)
+export function CompanyPageClient({ company: initialCompany }: CompanyPageClientProps) {
+  const [company, /* setCompany */] = useState<Company>(initialCompany);
+  const [/* isEditing */, setIsEditing] = useState(false);
+  /* const [isContactDialogOpen, setIsContactDialogOpen] = useState(false); */
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [isLoadingContacts, setIsLoadingContacts] = useState(true);
 
-  const handleEditSuccess = (updatedCompany: Company) => {
-    setCurrentCompany(updatedCompany)
-    setIsEditing(false)
-  }
+
+  // Fetch contacts for the company
+  const fetchContacts = useCallback(async () => {
+    try {
+      setIsLoadingContacts(true);
+      const response = await axios.get(`/api/companies/${company.id}/contacts`);
+      setContacts(response.data);
+    } catch (error) {
+      console.error("Error fetching contacts:", error);
+      toast.error("Error al cargar los contactos");
+    } finally {
+      setIsLoadingContacts(false);
+    }
+  }, [company.id]);
+
+  useEffect(() => {
+    fetchContacts();
+  }, [fetchContacts]);
 
   return (
-    <div className="max-w-5xl mx-auto p-6">
+    <div className="space-y-6">
+      {/* Header Component */}
       <HeaderCompanyId companyId={company.id} onEdit={() => setIsEditing(true)} />
 
-      <div className="space-y-6">
-        {isEditing ? (
-          <CompanyForm initialData={currentCompany} onSuccess={handleEditSuccess} />
-        ) : (
-          <CompanyInformation company={currentCompany} />
-        )}
+      {/* Company Information */}
+      <CompanyInformation company={company} />
+
+      {/* Contact List */}
+      <div className="space-y-4">
+        <ContactList
+          contacts={contacts}
+          companyId={company.id}
+          onUpdate={fetchContacts}
+          isLoading={isLoadingContacts}
+        />
       </div>
     </div>
-  )
+  );
 }
-
