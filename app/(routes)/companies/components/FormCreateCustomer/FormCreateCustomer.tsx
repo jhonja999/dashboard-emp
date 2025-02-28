@@ -18,7 +18,8 @@ import {
 import { Label } from "@/components/ui/label";
 import { UploadButton } from "@/utils/uploadthing";
 import Image from "next/image";
-import { CloudUpload, X } from "lucide-react";
+import { CloudUpload, Loader2, X, ImagePlus } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const countries = [
   "Perú",
@@ -39,9 +40,7 @@ interface FormCreateCustomerProps {
 export function FormCreateCustomer({ onSuccess }: FormCreateCustomerProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-
-  // Image state
-  const [imageUrl, setImageUrl] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
 
   // Form data
   const [formData, setFormData] = useState({
@@ -50,6 +49,7 @@ export function FormCreateCustomer({ onSuccess }: FormCreateCustomerProps) {
     website: "",
     phone: "",
     dni: "",
+    imageUrl: "",
   });
 
   // Basic field errors
@@ -82,13 +82,13 @@ export function FormCreateCustomer({ onSuccess }: FormCreateCustomerProps) {
     // Phone
     const phoneRegex =
       /^\+?[0-9]{1,3}?[-.\s]?(\(?\d{1,4}\)?[-.\s]?)?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/;
-    if (!phoneRegex.test(formData.phone)) {
+    if (formData.phone && !phoneRegex.test(formData.phone)) {
       newErrors.phone = "Formato inválido. Ej: +51 999 999 999 o 999-999-999";
     }
 
     // DNI
     const dniRegex = /^[0-9]{8}$/;
-    if (!dniRegex.test(formData.dni)) {
+    if (formData.dni && !dniRegex.test(formData.dni)) {
       newErrors.dni = "El DNI debe tener exactamente 8 dígitos numéricos";
     }
 
@@ -105,10 +105,7 @@ export function FormCreateCustomer({ onSuccess }: FormCreateCustomerProps) {
       setLoading(true);
 
       // POST to /api/companies
-      const response = await axios.post("/api/companies", {
-        ...formData,
-        imageUrl,
-      });
+      const response = await axios.post("/api/companies", formData);
       console.log("Compañía creada correctamente:", response.data);
       toast.success("Cliente creado exitosamente");
 
@@ -250,69 +247,121 @@ export function FormCreateCustomer({ onSuccess }: FormCreateCustomerProps) {
           <CloudUpload className="mr-2 h-5 w-5 text-primary" />
           Imagen de Perfil
         </Label>
+
         <div className="flex flex-col items-center space-y-4">
-          {!imageUrl ? (
-            <UploadButton
-              endpoint="imageUploader"
-              onClientUploadComplete={(res) => {
-                if (res && res[0]) {
-                  setImageUrl(res[0].url);
-                  toast.success("Imagen subida exitosamente");
-                }
-              }}
-              onUploadError={(error) => {
-                console.error("Error al subir la imagen:", error);
-                toast.error("Error al subir la imagen");
-              }}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground dark:bg-secondary dark:hover:bg-secondary/90 dark:text-secondary-foreground px-6 py-3 rounded-md border-2 border-dotted border-primary transition-colors flex items-center justify-center gap-2 z-50"
-              content={{
-                button({ ready }) {
-                  if (!ready) return "Cargando...";
-                  return "Subir imagen";
-                },
-              }}
-            />
-          ) : (
-            <div className="space-y-2">
-              <Image
-                src={imageUrl}
-                alt="Previsualización"
-                width={200}
-                height={200}
-                className="w-40 h-40 object-cover rounded-md shadow-md border-2 border-border"
-              />
-              <Button
-                type="button"
-                variant="destructive"
-                size="sm"
-                onClick={() => setImageUrl("")}
-                className="flex items-center gap-2"
-              >
-                <X className="h-4 w-4" />
-                <span>Quitar Imagen</span>
-              </Button>
-            </div>
-          )}
+          <div
+            className={cn(
+              "relative w-40 h-40 rounded-lg overflow-hidden",
+              "bg-muted/30 border-2 border-dashed border-muted-foreground/25",
+              "flex items-center justify-center",
+              !formData.imageUrl && "hover:border-primary/50 transition-colors"
+            )}
+          >
+            {formData.imageUrl ? (
+              <>
+                <Image
+                  src={formData.imageUrl || "/placeholder.svg"}
+                  alt="Company Profile"
+                  fill
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => setFormData({ ...formData, imageUrl: "" })}
+                    className="flex items-center gap-2"
+                  >
+                    <X className="h-4 w-4" />
+                    <span>Eliminar</span>
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <div className="flex flex-col items-center gap-2 p-4">
+                <UploadButton
+                  endpoint="imageUploader"
+                  onUploadBegin={() => {
+                    setIsUploading(true);
+                  }}
+                  onClientUploadComplete={(res) => {
+                    if (res && res[0]) {
+                      setFormData({ ...formData, imageUrl: res[0].url });
+                      toast.success("Imagen subida exitosamente");
+                    }
+                    setIsUploading(false);
+                  }}
+                  onUploadError={(error) => {
+                    console.error("Error al subir la imagen:", error);
+                    toast.error("Error al subir la imagen");
+                    setIsUploading(false);
+                  }}
+                  appearance={{
+                    button: cn(
+                      "bg-primary hover:bg-primary/90 text-primary-foreground",
+                      "transition-colors rounded-md px-4 py-2",
+                      "flex items-center gap-2"
+                    ),
+                    allowedContent: "hidden",
+                  }}
+                  content={{
+                    button({ ready }) {
+                      if (!ready) return "Cargando...";
+
+                      return (
+                        <div className="flex items-center gap-2">
+                          {isUploading ? (
+                            <>
+                              <Loader2 className="h-4 w-4 animate-spin dark:text-blue-500" />
+                              <span className="dark:text-blue-500">Subiendo...</span>
+                            </>
+                          ) : (
+                            <>
+                              <ImagePlus className="h-4 w-4 dark:text-blue-500" />
+                              <span className="dark:text-blue-500">Subir imagen</span>
+                            </>
+                          )}
+                        </div>
+                      );
+                    },
+                  }}
+                />
+                <p className="text-xs text-muted-foreground text-center mt-2">
+                  PNG, JPG o GIF
+                  <br />
+                  Máximo 4MB
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row gap-3 sm:justify-end pt-4">
+      <div className="flex justify-end gap-4">
         <Button
           type="button"
           variant="outline"
           onClick={() => router.back()}
           disabled={loading}
-          className="w-full sm:w-auto border-border transition-colors"
+          className="border-border transition-colors"
         >
           Cancelar
         </Button>
         <Button
           type="submit"
-          disabled={loading}
-          className="w-full sm:w-auto bg-primary hover:bg-primary/90 border-primary text-primary-foreground transition-colors"
+          disabled={loading || isUploading}
+          className="bg-primary hover:bg-primary/90 text-primary-foreground transition-colors"
         >
-          {loading ? "Creando..." : "Crear Cliente"}
+          {loading ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Creando...
+            </>
+          ) : (
+            "Crear Cliente"
+          )}
         </Button>
       </div>
     </form>
