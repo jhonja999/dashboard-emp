@@ -48,16 +48,17 @@ model Company {
 }
 
 model Contact {
-  id        String   @id @default(cuid())
-  name      String
-  email     String
-  phone     String?
-  role      String   @default("employee") // Added role field
-  companyId String
-  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  userId    String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(cuid())
+  name        String
+  email       String
+  phone       String?
+  role        String   @default("employee")
+  startDate   DateTime // Asegúrate de que este campo sea DateTime
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  userId      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@index([companyId])
   @@index([userId])

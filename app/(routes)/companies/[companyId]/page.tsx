@@ -2,7 +2,6 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { CompanyPageClient } from "./components/CompanyPageClient";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
 import DashboardContent from "@/components/dashboard/DashboardContent";
 
 export default async function CompanyIdPage({
@@ -20,7 +19,7 @@ export default async function CompanyIdPage({
 
   // Buscar la compañía en la base de datos
   const company = await prisma.company.findUnique({
-    where: { id: params.companyId, userId },
+    where: { id: params.companyId, userId},
     include: { Contact: true }, // Fetch associated contacts
   });
 

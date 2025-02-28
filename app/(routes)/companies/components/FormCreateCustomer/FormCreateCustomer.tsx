@@ -328,7 +328,7 @@ export function FormCreateCustomer({ onSuccess }: FormCreateCustomerProps) {
                   }}
                 />
                 <p className="text-xs text-muted-foreground text-center mt-2">
-                  PNG, JPG o GIF
+                PNG, JPG o Webp
                   <br />
                   Máximo 4MB
                 </p>

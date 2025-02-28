@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import {
   Mail,
@@ -9,10 +7,13 @@ import {
   UserCircle2,
   Plus,
   MessageCircle,
+  Calendar,
 } from "lucide-react";
 import { toast } from "sonner";
 import axios from "axios";
 import type { Contact } from "@prisma/client";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -59,6 +60,10 @@ export function ContactList({
     } else if (type === "phone" && contact.phone) {
       window.location.href = `tel:${contact.phone}`;
     }
+  };
+
+  const formatDate = (date: Date | string) => {
+    return format(new Date(date), "PPP", { locale: es });
   };
 
   if (isLoading) {
@@ -113,21 +118,21 @@ export function ContactList({
                 {contacts.map((contact) => (
                   <div
                     key={contact.id}
-                    className="flex items-center justify-between p-4 rounded-lg border bg-card"
+                    className="flex flex-col md:flex-row md:items-center md:justify-between p-4 rounded-lg border bg-card space-y-4 md:space-y-0"
                   >
                     <div className="space-y-1">
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
                         <h3 className="font-medium">{contact.name}</h3>
                         <span className="text-xs text-muted-foreground px-2 py-1 bg-muted rounded-full">
                           {contact.role}
                         </span>
                       </div>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                      <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                         <button
                           onClick={() => handleContactAction("email", contact)}
                           className="flex items-center gap-1 hover:text-primary transition-colors"
                         >
-                          <Mail className="h-4 w-4 " />
+                          <Mail className="h-4 w-4" />
                           {contact.email}
                         </button>
                         {contact.phone && (
@@ -135,54 +140,68 @@ export function ContactList({
                             onClick={() =>
                               handleContactAction("phone", contact)
                             }
-                            className="flex items-center gap-1 hover:text-primary transition-colors "
+                            className="flex items-center gap-1 hover:text-primary transition-colors"
                           >
                             <Phone className="h-4 w-4" />
                             {contact.phone}
                           </button>
                         )}
                       </div>
+                      {/* Display Start Date */}
+                      <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
+                        <Calendar className="h-4 w-4" />
+                        <span className="italic">
+                          Inicio: {formatDate(contact.startDate)}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2 ">
-                      {contact.phone && (
+
+                    <div className="flex flex-wrap items-center gap-2 justify-end md:justify-normal">
+                      <div className="flex items-center gap-2 mr-2 md:mr-4">
+                        {contact.phone && (
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() =>
+                              handleContactAction("phone", contact)
+                            }
+                            title="Llamar"
+                            className="bg-green-400 hover:bg-green-700"
+                          >
+                            <Phone className="h-4 w-4" />
+                          </Button>
+                        )}
                         <Button
                           variant="outline"
                           size="icon"
-                          onClick={() => handleContactAction("phone", contact)}
-                          title="Llamar"
-                          className="bg-green-400 hover:bg-green-700"
+                          onClick={() => handleContactAction("email", contact)}
+                          title="Enviar email"
+                          className="bg-slate-400 hover:bg-slate-600"
                         >
-                          <Phone className="h-4 w-4 " />
+                          <MessageCircle className="h-4 w-4" />
                         </Button>
-                      )}
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => handleContactAction("email", contact)}
-                        title="Enviar email"
-                        className="bg-slate-400 hover:bg-slate-600"
-                      >
-                        <MessageCircle className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => {
-                          setEditingContact(contact);
-                          setIsFormOpen(true);
-                        }}
-                        className="bg-blue-400 hover:bg-blue-600"
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDelete(contact.id)}
-                        className="bg-red-400 hover:bg-red-300"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      </div>
+                      <div className="flex items-center gap-2 border-l pl-2 md:pl-4">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            setEditingContact(contact);
+                            setIsFormOpen(true);
+                          }}
+                          className="bg-blue-400 hover:bg-blue-600"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDelete(contact.id)}
+                          className="bg-red-400 hover:bg-red-300"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 ))}

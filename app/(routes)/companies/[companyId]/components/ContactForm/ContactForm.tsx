@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
@@ -15,8 +13,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Mail, Phone, User, UserCircle } from "lucide-react";
+import { CalendarIcon, Mail, Phone, User, UserCircle } from "lucide-react";
 import type { ContactFormProps, FormData } from "./ContactForm.types";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 
 // Roles predefinidos
 const roles = [
@@ -33,6 +40,10 @@ const formSchema = z.object({
   email: z.string().email("Ingrese un email válido"),
   phone: z.string().optional(),
   role: z.string(),
+  startDate: z.date({
+    required_error: "La fecha de inicio es requerida",
+    invalid_type_error: "Ingrese una fecha válida",
+  }),
 });
 
 export function ContactForm({ initialData, companyId, onSuccess, isDialog }: ContactFormProps) {
@@ -43,6 +54,7 @@ export function ContactForm({ initialData, companyId, onSuccess, isDialog }: Con
     email: initialData?.email || "",
     phone: initialData?.phone || "",
     role: initialData?.role || "employee",
+    startDate: initialData?.startDate ? new Date(initialData.startDate) : new Date(),
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -67,7 +79,7 @@ export function ContactForm({ initialData, companyId, onSuccess, isDialog }: Con
   };
 
   // Manejo del envío del formulario
-const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) {
       return;
@@ -78,7 +90,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         // Actualizar contacto existente
         const response = await axios.put(
           `/api/companies/${companyId}/contacts/${initialData.id}`,
-          formData // Asegúrate de que `formData` incluya el campo `role`
+          formData
         );
         toast.success("Contacto actualizado exitosamente");
         onSuccess?.(response.data);
@@ -175,6 +187,48 @@ const handleSubmit = async (e: React.FormEvent) => {
             </SelectContent>
           </Select>
           {errors.role && <p className="text-sm text-destructive">{errors.role}</p>}
+        </div>
+
+        {/* Fecha de Inicio (Implementación creativa) */}
+        <div className="space-y-2 md:col-span-2">
+          <Label htmlFor="startDate" className="flex items-center gap-2">
+            <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+            Fecha de Inicio
+          </Label>
+          <div className="relative">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !formData.startDate && "text-muted-foreground"
+                  )}
+                  disabled={loading}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {formData.startDate ? (
+                    format(formData.startDate, "PPP", { locale: es })
+                  ) : (
+                    <span>Selecciona una fecha</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={formData.startDate}
+                  onSelect={(date) => setFormData({ ...formData, startDate: date || new Date() })}
+                  initialFocus
+                  disabled={loading}
+                  locale={es}
+                />
+              </PopoverContent>
+            </Popover>
+            {errors.startDate && <p className="text-sm text-destructive mt-1">{errors.startDate}</p>
+            }
+            
+          </div>
         </div>
       </div>
 

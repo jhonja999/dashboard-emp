@@ -197,6 +197,7 @@ export function CompanyForm({ initialData, onSuccess, onCancel }: CompanyFormPro
             ) : (
               <div className="flex flex-col items-center gap-2 p-4">
                 <UploadButton
+              
                   endpoint="imageUploader"
                   onUploadBegin={() => {
                     setIsUploading(true);
@@ -234,8 +235,8 @@ export function CompanyForm({ initialData, onSuccess, onCancel }: CompanyFormPro
                             </>
                           ) : (
                             <>
-                              <ImagePlus className="h-4 w-4" />
-                              <span>Subir imagen</span>
+                              <ImagePlus className="h-4 w-4 dark:text-blue-500" />
+                              <span className="dark:text-blue-500">Subir imagen</span>
                             </>
                           )}
                         </div>
@@ -244,7 +245,7 @@ export function CompanyForm({ initialData, onSuccess, onCancel }: CompanyFormPro
                   }}
                 />
                 <p className="text-xs text-muted-foreground text-center mt-2">
-                  PNG, JPG o GIF
+                  PNG, JPG o Webp
                   <br />
                   Máximo 4MB
                 </p>
