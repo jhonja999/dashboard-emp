@@ -3,6 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { CompanyPageClient } from "./components/CompanyPageClient";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import DashboardContent from "@/components/dashboard/DashboardContent";
 
 export default async function CompanyIdPage({
   params,
@@ -29,11 +30,8 @@ export default async function CompanyIdPage({
   }
 
   return (
-    <div>
-      <div className="fixed top-4 right-4 z-50">
-        <ThemeToggle />
-      </div>
+    <DashboardContent>
       <CompanyPageClient company={company} />
-    </div>
+    </DashboardContent>
   );
 }
