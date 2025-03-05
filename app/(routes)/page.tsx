@@ -4,7 +4,7 @@
  */
 
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion"; // Manejo de animaciones en React
 import { ChevronDown } from "lucide-react"; // Ícono de flecha hacia abajo
 import { Button } from "@/components/ui/button"; // Componente de botón
@@ -17,8 +17,18 @@ import { ThemeToggle } from "@/components/ui/theme-toggle"; // Componente para c
  * @returns JSX.Element
  */
 export default function Home() {
+
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) return null; // Evita el renderizado hasta que el componente esté montado en el cliente
+
   return (
     <div className="min-h-screen bg-[#1c1c1c]">
+      
       {/* Navegación fija en la parte superior */}
       <nav className="fixed top-0 w-full bg-[#1c1c1c]/90 backdrop-blur-sm z-50 border-b border-[#d4af37]/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
