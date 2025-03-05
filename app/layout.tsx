@@ -26,6 +26,7 @@ export default function RootLayout({
 }) {
   return (
     <ClerkProvider>
+      <html lang="en" suppressHydrationWarning>
         <body className={inter.className}>
           <ThemeProvider
             attribute="class"
@@ -37,7 +38,7 @@ export default function RootLayout({
             <Toaster />
           </ThemeProvider>
         </body>
-      </html>
+        </html>
     </ClerkProvider>
   );
 }
