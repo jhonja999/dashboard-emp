@@ -1,10 +1,16 @@
+/**
+ * Archivo: CompanyForm.tsx
+ * Uso: Componente que muestra un formulario para crear o actualizar una empresa.
+ *      Permite subir una imagen y actualizar datos como país, teléfono y DNI.
+ */
+
 "use client";
 
-import type React from "react";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import type React from "react"; // Tipado de React
+import { useState } from "react"; 
+import { useRouter } from "next/navigation"; 
 import axios from "axios";
-import { toast } from "sonner";
+import { toast } from "sonner"; 
 import type { CompanyFormProps, FormData } from "./CompanyForm.types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,6 +27,7 @@ import Image from "next/image";
 import { CloudUpload, Loader2, X, ImagePlus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+// Lista de países disponibles en el formulario
 const countries = [
   "Perú",
   "Argentina",
@@ -30,9 +37,16 @@ const countries = [
   "España",
 ];
 
+/**
+ * Componente CompanyForm:
+ * Muestra un formulario para crear o actualizar datos de una empresa.
+ * @param {CompanyFormProps} initialData - Datos iniciales de la empresa (si existen).
+ * @param {Function} onSuccess - Callback que se llama tras guardar exitosamente.
+ * @param {Function} onCancel - Callback que se llama al cancelar la operación.
+ */
 export function CompanyForm({ initialData, onSuccess, onCancel }: CompanyFormProps) {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); // Controla el estado de carga al enviar datos
   const [formData, setFormData] = useState<FormData>({
     name: initialData?.name || "",
     country: initialData?.country || "",
@@ -41,13 +55,18 @@ export function CompanyForm({ initialData, onSuccess, onCancel }: CompanyFormPro
     dni: initialData?.dni || "",
     imageUrl: initialData?.imageUrl || "",
   });
-  const [isUploading, setIsUploading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false); // Controla el estado de subida de la imagen
 
+  /**
+   * Maneja el envío del formulario. 
+   * Si existe initialData, se actualiza la empresa. De lo contrario, se crea.
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       setLoading(true);
       if (initialData) {
+        // Actualizar empresa existente
         const response = await axios.patch(
           `/api/companies/${initialData.id}`,
           formData
@@ -55,12 +74,12 @@ export function CompanyForm({ initialData, onSuccess, onCancel }: CompanyFormPro
         console.log("Company updated:", response.data);
         toast.success("Empresa actualizada exitosamente");
         
-        // Call the onSuccess callback with the updated data
+        // Llamada al callback onSuccess con la información actualizada
         if (onSuccess) {
           onSuccess(response.data);
         }
       } else {
-        // Handle create case if needed
+        // Crear nueva empresa
         const response = await axios.post("/api/companies", formData);
         console.log("Company created:", response.data);
         toast.success("Empresa creada exitosamente");
@@ -70,7 +89,7 @@ export function CompanyForm({ initialData, onSuccess, onCancel }: CompanyFormPro
         }
       }
 
-      router.refresh();
+      router.refresh(); // Refresca la información en la vista
     } catch (error) {
       console.error("Error saving company:", error);
       toast.error("Error al guardar los cambios");
@@ -79,7 +98,10 @@ export function CompanyForm({ initialData, onSuccess, onCancel }: CompanyFormPro
     }
   };
 
-  // Handle cancel button click
+  /**
+   * Maneja la acción de cancelar. 
+   * Llama a la función onCancel si está definida.
+   */
   const handleCancel = () => {
     if (onCancel) {
       onCancel();
@@ -89,6 +111,7 @@ export function CompanyForm({ initialData, onSuccess, onCancel }: CompanyFormPro
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-6">
+        {/* Campo Nombre */}
         <div className="space-y-2">
           <Label htmlFor="name">Nombre de la Empresa</Label>
           <Input
@@ -100,6 +123,7 @@ export function CompanyForm({ initialData, onSuccess, onCancel }: CompanyFormPro
           />
         </div>
 
+        {/* Campo País */}
         <div className="space-y-2">
           <Label htmlFor="country">País</Label>
           <Select
@@ -123,6 +147,7 @@ export function CompanyForm({ initialData, onSuccess, onCancel }: CompanyFormPro
           </Select>
         </div>
 
+        {/* Campo Sitio Web */}
         <div className="space-y-2">
           <Label htmlFor="website">Sitio Web</Label>
           <Input
@@ -135,6 +160,7 @@ export function CompanyForm({ initialData, onSuccess, onCancel }: CompanyFormPro
           />
         </div>
 
+        {/* Campo Teléfono */}
         <div className="space-y-2">
           <Label htmlFor="phone">Teléfono</Label>
           <Input
@@ -147,6 +173,7 @@ export function CompanyForm({ initialData, onSuccess, onCancel }: CompanyFormPro
           />
         </div>
 
+        {/* Campo DNI */}
         <div className="space-y-2">
           <Label htmlFor="dni">DNI</Label>
           <Input
@@ -158,6 +185,7 @@ export function CompanyForm({ initialData, onSuccess, onCancel }: CompanyFormPro
         </div>
       </div>
 
+      {/* Sección para subir imagen */}
       <div className="space-y-4">
         <Label className="flex items-center text-sm font-medium text-foreground">
           <CloudUpload className="mr-2 h-5 w-5 text-primary" />
@@ -197,7 +225,6 @@ export function CompanyForm({ initialData, onSuccess, onCancel }: CompanyFormPro
             ) : (
               <div className="flex flex-col items-center gap-2 p-4">
                 <UploadButton
-              
                   endpoint="imageUploader"
                   onUploadBegin={() => {
                     setIsUploading(true);
@@ -255,6 +282,7 @@ export function CompanyForm({ initialData, onSuccess, onCancel }: CompanyFormPro
         </div>
       </div>
 
+      {/* Botones de acción */}
       <div className="flex justify-end gap-4">
         <Button
           type="button"

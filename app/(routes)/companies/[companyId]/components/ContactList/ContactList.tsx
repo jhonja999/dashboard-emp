@@ -1,3 +1,8 @@
+/**
+ * Archivo: app/(routes)/companies/[companyId]/components/ContactList/ContactList.tsx
+ * Uso: Componente cliente que muestra la lista de contactos de una compañía y permite agregar, editar y eliminar contactos.
+ */
+
 import { useState } from "react";
 import {
   Mail,
@@ -20,10 +25,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ContactFormDialog } from "./ContactFormDialog";
 
 interface ContactListProps {
-  contacts: Contact[];
-  companyId: string;
-  onUpdate: () => void;
-  isLoading?: boolean;
+  contacts: Contact[];    // Lista de contactos a mostrar
+  companyId: string;      // ID de la compañía a la que pertenecen los contactos
+  onUpdate: () => void;   // Función para refrescar o actualizar la lista de contactos
+  isLoading?: boolean;    // Indica si los contactos están cargando
 }
 
 export function ContactList({
@@ -32,9 +37,10 @@ export function ContactList({
   onUpdate,
   isLoading,
 }: ContactListProps) {
-  const [editingContact, setEditingContact] = useState<Contact | null>(null);
-  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingContact, setEditingContact] = useState<Contact | null>(null); // Contacto en modo edición
+  const [isFormOpen, setIsFormOpen] = useState(false);                       // Controla la apertura del diálogo para crear/editar contactos
 
+  // Función para eliminar un contacto
   const handleDelete = async (contactId: string) => {
     if (confirm("¿Estás seguro de eliminar este contacto?")) {
       try {
@@ -48,12 +54,14 @@ export function ContactList({
     }
   };
 
+  // Función que se llama tras crear/editar un contacto exitosamente
   const handleFormSuccess = () => {
     setIsFormOpen(false);
     setEditingContact(null);
     onUpdate();
   };
 
+  // Maneja acciones de correo o llamada para un contacto
   const handleContactAction = (type: "email" | "phone", contact: Contact) => {
     if (type === "email") {
       window.location.href = `mailto:${contact.email}`;
@@ -62,10 +70,12 @@ export function ContactList({
     }
   };
 
+  // Formatea la fecha para mostrarla en español
   const formatDate = (date: Date | string) => {
     return format(new Date(date), "PPP", { locale: es });
   };
 
+  // Muestra un mensaje de carga si los contactos están cargando
   if (isLoading) {
     return (
       <Card>
@@ -95,6 +105,7 @@ export function ContactList({
               <UserCircle2 className="h-5 w-5" />
               Contactos
             </CardTitle>
+            {/* Botón para agregar un nuevo contacto */}
             <Button
               onClick={() => {
                 setEditingContact(null);
@@ -110,16 +121,19 @@ export function ContactList({
         <CardContent>
           <div className="space-y-4">
             {contacts.length === 0 ? (
+              // Mensaje si no hay contactos
               <p className="text-muted-foreground text-center py-4">
                 No hay contactos registrados
               </p>
             ) : (
+              // Lista de contactos
               <div className="grid gap-4">
                 {contacts.map((contact) => (
                   <div
                     key={contact.id}
                     className="flex flex-col md:flex-row md:items-center md:justify-between p-4 rounded-lg border bg-card space-y-4 md:space-y-0"
                   >
+                    {/* Información principal del contacto */}
                     <div className="space-y-1">
                       <div className="flex flex-wrap items-center gap-2">
                         <h3 className="font-medium">{contact.name}</h3>
@@ -128,6 +142,7 @@ export function ContactList({
                         </span>
                       </div>
                       <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                        {/* Acción de enviar email */}
                         <button
                           onClick={() => handleContactAction("email", contact)}
                           className="flex items-center gap-1 hover:text-primary transition-colors"
@@ -135,6 +150,7 @@ export function ContactList({
                           <Mail className="h-4 w-4" />
                           {contact.email}
                         </button>
+                        {/* Acción de llamada si tiene teléfono */}
                         {contact.phone && (
                           <button
                             onClick={() =>
@@ -147,7 +163,7 @@ export function ContactList({
                           </button>
                         )}
                       </div>
-                      {/* Display Start Date */}
+                      {/* Fecha de inicio del contacto */}
                       <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
                         <Calendar className="h-4 w-4" />
                         <span className="italic">
@@ -156,6 +172,7 @@ export function ContactList({
                       </div>
                     </div>
 
+                    {/* Acciones de edición y eliminación */}
                     <div className="flex flex-wrap items-center gap-2 justify-end md:justify-normal">
                       <div className="flex items-center gap-2 mr-2 md:mr-4">
                         {contact.phone && (
@@ -211,6 +228,7 @@ export function ContactList({
         </CardContent>
       </Card>
 
+      {/* Diálogo para crear/editar un contacto */}
       <ContactFormDialog
         open={isFormOpen}
         onOpenChange={setIsFormOpen}

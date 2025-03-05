@@ -1,8 +1,14 @@
+/**
+ * Archivo: app/(routes)/companies/[companyId]/components/Header/HeaderCompanyId.tsx
+ * Uso: Componente que muestra la cabecera en la página individual de cada empresa, incluyendo
+ *      un botón de retroceso, título, y botones para editar o eliminar la empresa.
+ */
+
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, Edit2, Trash2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button"; // Componente de botón
+import { ArrowLeft, Edit2, Trash2 } from "lucide-react"; // Íconos de lucide-react para flecha, edición y eliminación
+import { useRouter } from "next/navigation"; // Hook para navegación en Next.js
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,19 +19,22 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import axios from "axios";
-import { toast } from "sonner";
-import { useState } from "react";
+} from "@/components/ui/alert-dialog"; // Componentes para el diálogo de confirmación
+import axios from "axios"; // Librería para realizar solicitudes HTTP
+import { toast } from "sonner"; // Librería para mostrar notificaciones
+import { useState } from "react"; // Hook de React para manejar estados
 
+// Define las propiedades que recibe el componente HeaderCompanyId
 interface HeaderProps {
-  companyId: string;
-  onEdit: () => void;
+  companyId: string; // Identificador de la empresa
+  onEdit: () => void; // Función para activar el modo edición de la empresa
 }
 
+// Componente HeaderCompanyId: Muestra el encabezado con título, botón de retroceso,
+// botón de edición y diálogo de confirmación para eliminar la empresa.
 export function HeaderCompanyId({ companyId, onEdit }: HeaderProps) {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); // Controla el estado de carga al eliminar la empresa
 
   // Función para eliminar la empresa
   const handleDelete = async () => {
@@ -33,8 +42,8 @@ export function HeaderCompanyId({ companyId, onEdit }: HeaderProps) {
       setLoading(true);
       await axios.delete(`/api/companies/${companyId}`);
       toast.success("Empresa eliminada exitosamente");
-      router.push("/companies");
-      router.refresh();
+      router.push("/companies"); // Redirige a la lista de empresas
+      router.refresh(); // Refresca la página
     } catch (error) {
       console.error("Error deleting company:", error);
       toast.error("Error al eliminar la empresa");

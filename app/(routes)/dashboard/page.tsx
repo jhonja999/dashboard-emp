@@ -1,10 +1,16 @@
+/**
+ * Archivo: Dashboard.tsx
+ * Uso: Componente cliente que renderiza el dashboard interactivo, permitiendo la personalización del layout mediante drag-and-drop.
+ * Se utiliza Swapy para la gestión del posicionamiento de los componentes del dashboard.
+ */
+
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { createSwapy } from "swapy";
-import { RefreshCcw, Lock, Settings } from "lucide-react"; // Íconos de lucide-react
+import { useState, useEffect, useRef } from "react"; // Importa hooks de React para manejar estado, efectos y referencias
+import { createSwapy } from "swapy"; // Importa la función para crear una instancia de Swapy
+import { RefreshCcw, Lock, Settings } from "lucide-react"; // Importa íconos de lucide-react
 
-// Componentes de ejemplo
+// Componentes de ejemplo utilizados en el dashboard
 import { CardSummary } from "../components/CardSummary/CardSummary";
 import { BookOpenCheck, UsersRound, Waypoints } from "lucide-react";
 import { LastCustomers } from "../components/LastCustomers";
@@ -32,6 +38,7 @@ type SwapyInstance = {
 /* =======================================
    Orden por defecto de los slots
    ======================================= */
+// Define el arreglo con el orden predeterminado de los componentes en el dashboard
 const defaultArrangement = [
   { slot: "CompaniesCreated", item: "CompaniesCreated" },
   { slot: "TotalRevenue", item: "TotalRevenue" },
@@ -43,7 +50,9 @@ const defaultArrangement = [
 ];
 
 export default function Dashboard() {
+  // Estado para activar/desactivar el modo drag-and-drop
   const [isDraggable, setIsDraggable] = useState(false);
+  // Referencia para almacenar la instancia de Swapy
   const swapyRef = useRef<SwapyInstance | null>(null);
 
   /* =======================================
@@ -58,7 +67,7 @@ export default function Dashboard() {
         `[data-swapy-item="${item}"]`
       );
       if (slotEl && itemEl) {
-        slotEl.appendChild(itemEl); // Mover el elemento item al slot correspondiente
+        slotEl.appendChild(itemEl); // Mueve el elemento 'item' al slot correspondiente
       }
     });
   }
@@ -93,11 +102,11 @@ export default function Dashboard() {
       }>;
       applyArrangement(parsed);
     } else {
-      // Si no hay nada guardado, usamos el orden por defecto
+      // Si no hay nada guardado, usar el orden por defecto
       applyArrangement(defaultArrangement);
     }
 
-    // Limpieza si el componente se desmonta
+    // Limpieza: destruir la instancia de Swapy si el componente se desmonta
     return () => {
       if (swapyRef.current) {
         swapyRef.current.destroy();

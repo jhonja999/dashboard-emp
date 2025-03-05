@@ -1,18 +1,23 @@
+/**
+ * Archivo: columns.tsx
+ * Uso: Define las columnas para la tabla de compañías, incluyendo la imagen de perfil, nombre, email, teléfono, país, sitio web y acciones.
+ */
+
 "use client";
 
-import { ArrowUpDown, MoreHorizontal, Pencil } from "lucide-react";
-import { ColumnDef } from "@tanstack/react-table";
-import { Button } from "@/components/ui/button";
+import { ArrowUpDown, MoreHorizontal, Pencil } from "lucide-react"; // Importa íconos de lucide-react para uso en la tabla
+import { ColumnDef } from "@tanstack/react-table"; // Importa el tipo ColumnDef de react-table para definir columnas
+import { Button } from "@/components/ui/button"; // Importa el componente Button para botones de acción y ordenamiento
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import Link from "next/link";
-import Image from "next/image";
+} from "@/components/ui/dropdown-menu"; // Importa componentes de menú desplegable para las acciones
+import Link from "next/link"; // Importa Link para navegación entre rutas
+import Image from "next/image"; // Importa Image para optimización de imágenes
 
-// Definimos la interfaz Company
+// Definimos la interfaz Company para tipar los datos de la compañía
 interface Company {
   userId: string;
   name: string;
@@ -26,7 +31,7 @@ interface Company {
   imageUrl: string | null;
 }
 
-// Definimos las columnas de la tabla
+// Definimos las columnas de la tabla para la gestión de compañías
 export const columns: ColumnDef<Company>[] = [
   {
     accessorKey: "imageUrl",
@@ -37,7 +42,7 @@ export const columns: ColumnDef<Company>[] = [
         <div className="flex items-center justify-center">
           {imageUrl ? (
             <Image
-              src={imageUrl}
+              src={imageUrl} // Muestra la imagen de perfil de la compañía si está disponible
               alt="Company Profile"
               width={40}
               height={40}
@@ -45,7 +50,7 @@ export const columns: ColumnDef<Company>[] = [
             />
           ) : (
             <Image
-              src="/placeholder.webp" // Ruta correcta desde /public/
+              src="/placeholder.webp" // Muestra una imagen por defecto si no se dispone de imagen de perfil
               alt="Default Profile"
               width={40}
               height={40}

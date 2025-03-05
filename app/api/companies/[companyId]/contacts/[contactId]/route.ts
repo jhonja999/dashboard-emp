@@ -1,36 +1,40 @@
+// Archivo: api_[contactId].ts
+// Uso: Controlador de API para gestionar contactos dentro de una compañía en una aplicación Next.js con Prisma y Clerk.
+
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 
+// Método GET: Obtiene un contacto específico dentro de una compañía
 export async function GET(
   request: Request,
   { params }: { params: { companyId: string; contactId: string } }
 ) {
   try {
+    // Autenticación del usuario
     const { userId } = await auth();
     if (!userId) {
-      return new NextResponse("Unauthorized", { status: 401 });
+      return new NextResponse("No autorizado", { status: 401 });
     }
 
-    // Await params before accessing companyId and contactId
+    // Validación de parámetros
     const { companyId, contactId } = params;
     if (!companyId || !contactId) {
-      return new NextResponse("Company ID and Contact ID are required", { status: 400 });
+      return new NextResponse("Se requieren Company ID y Contact ID", { status: 400 });
     }
 
-    // Verify company belongs to the user
+    // Verifica que la compañía pertenece al usuario autenticado
     const company = await prisma.company.findUnique({
       where: {
         id: companyId,
         userId,
       },
     });
-
     if (!company) {
-      return new NextResponse("Company not found", { status: 404 });
+      return new NextResponse("Compañía no encontrada", { status: 404 });
     }
 
-    // Fetch the specific contact
+    // Obtiene el contacto dentro de la compañía
     const contact = await prisma.contact.findUnique({
       where: {
         id: contactId,
@@ -38,56 +42,54 @@ export async function GET(
         userId,
       },
     });
-
     if (!contact) {
-      return new NextResponse("Contact not found", { status: 404 });
+      return new NextResponse("Contacto no encontrado", { status: 404 });
     }
 
     return NextResponse.json(contact);
   } catch (error) {
-    console.error("Error fetching contact:", error);
-    return new NextResponse("Internal Error", { status: 500 });
+    console.error("Error al obtener el contacto:", error);
+    return new NextResponse("Error interno", { status: 500 });
   }
 }
 
+// Método PUT: Actualiza la información de un contacto
 export async function PUT(
   request: Request,
   { params }: { params: { companyId: string; contactId: string } }
 ) {
   try {
+    // Autenticación del usuario
     const { userId } = await auth();
     if (!userId) {
-      return new NextResponse("Unauthorized", { status: 401 });
+      return new NextResponse("No autorizado", { status: 401 });
     }
 
-    // Await params before accessing companyId and contactId
+    // Validación de parámetros
     const { companyId, contactId } = params;
     if (!companyId || !contactId) {
-      return new NextResponse("Company ID and Contact ID are required", { status: 400 });
+      return new NextResponse("Se requieren Company ID y Contact ID", { status: 400 });
     }
 
-    // Verify company belongs to the user
+    // Verifica que la compañía pertenece al usuario autenticado
     const company = await prisma.company.findUnique({
       where: {
         id: companyId,
         userId,
       },
     });
-
     if (!company) {
-      return new NextResponse("Company not found", { status: 404 });
+      return new NextResponse("Compañía no encontrada", { status: 404 });
     }
 
-    // Parse request body
+    // Obtiene y valida los datos del cuerpo de la solicitud
     const body = await request.json();
     const { name, email, phone, role, startDate } = body;
-
-    // Validate required fields
     if (!name || !email || !role) {
-      return new NextResponse("Name, email, and role are required", { status: 400 });
+      return new NextResponse("Nombre, correo y rol son obligatorios", { status: 400 });
     }
 
-    // Update the contact
+    // Actualiza el contacto en la base de datos
     const updatedContact = await prisma.contact.update({
       where: {
         id: contactId,
@@ -103,40 +105,41 @@ export async function PUT(
 
     return NextResponse.json(updatedContact);
   } catch (error) {
-    console.error("Error updating contact:", error);
-    return new NextResponse("Internal Error", { status: 500 });
+    console.error("Error al actualizar el contacto:", error);
+    return new NextResponse("Error interno", { status: 500 });
   }
 }
 
+// Método DELETE: Elimina un contacto de la base de datos
 export async function DELETE(
   request: Request,
   { params }: { params: { companyId: string; contactId: string } }
 ) {
   try {
+    // Autenticación del usuario
     const { userId } = await auth();
     if (!userId) {
-      return new NextResponse("Unauthorized", { status: 401 });
+      return new NextResponse("No autorizado", { status: 401 });
     }
 
-    // Await params before accessing companyId and contactId
+    // Validación de parámetros
     const { companyId, contactId } = params;
     if (!companyId || !contactId) {
-      return new NextResponse("Company ID and Contact ID are required", { status: 400 });
+      return new NextResponse("Se requieren Company ID y Contact ID", { status: 400 });
     }
 
-    // Verify company belongs to the user
+    // Verifica que la compañía pertenece al usuario autenticado
     const company = await prisma.company.findUnique({
       where: {
         id: companyId,
         userId,
       },
     });
-
     if (!company) {
-      return new NextResponse("Company not found", { status: 404 });
+      return new NextResponse("Compañía no encontrada", { status: 404 });
     }
 
-    // Delete the contact
+    // Elimina el contacto de la base de datos
     await prisma.contact.delete({
       where: {
         id: contactId,
@@ -145,7 +148,7 @@ export async function DELETE(
 
     return new NextResponse(null, { status: 204 });
   } catch (error) {
-    console.error("Error deleting contact:", error);
-    return new NextResponse("Internal Error", { status: 500 });
+    console.error("Error al eliminar el contacto:", error);
+    return new NextResponse("Error interno", { status: 500 });
   }
 }

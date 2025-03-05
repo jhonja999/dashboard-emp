@@ -1,26 +1,33 @@
+/**
+ * Archivo: FormCreateCustomer.tsx
+ * Uso: Componente cliente para crear una nueva compañía (cliente) mediante un formulario.
+ * Realiza validaciones básicas, sube imágenes y envía los datos a la API para la creación de la compañía.
+ */
+
 "use client";
 
-import type { FormEvent } from "react";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import axios from "axios";
-import { toast } from "sonner";
+import type { FormEvent } from "react"; // Importa el tipo FormEvent para tipar el evento del formulario
+import { useState } from "react"; // Hook para manejar estados locales
+import { useRouter } from "next/navigation"; // Hook para la navegación en Next.js
+import axios from "axios"; // Librería para realizar peticiones HTTP
+import { toast } from "sonner"; // Librería para mostrar notificaciones
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button"; // Componente de botón
+import { Input } from "@/components/ui/input"; // Componente de input para campos de texto
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
-import { UploadButton } from "@/utils/uploadthing";
-import Image from "next/image";
-import { CloudUpload, Loader2, X, ImagePlus } from "lucide-react";
-import { cn } from "@/lib/utils";
+} from "@/components/ui/select"; // Componentes para desplegar un selector (select)
+import { Label } from "@/components/ui/label"; // Componente para etiquetas de formulario
+import { UploadButton } from "@/utils/uploadthing"; // Componente para subir archivos (imagen)
+import Image from "next/image"; // Componente optimizado de imagen de Next.js
+import { CloudUpload, Loader2, X, ImagePlus } from "lucide-react"; // Íconos utilizados en el formulario
+import { cn } from "@/lib/utils"; // Función para combinar clases CSS
 
+// Lista de países disponibles en el selector
 const countries = [
   "Perú",
   "Argentina",
@@ -31,18 +38,18 @@ const countries = [
 ];
 
 interface FormCreateCustomerProps {
-  onSuccess?: () => void; // optional callback
+  onSuccess?: () => void; // Callback opcional que se ejecuta cuando la creación es exitosa
 }
 
 /**
- * FormCreateCustomer - Creates a new Company (POST to /api/companies)
+ * FormCreateCustomer - Crea una nueva compañía (cliente) enviando los datos mediante una petición POST a /api/companies.
  */
 export function FormCreateCustomer({ onSuccess }: FormCreateCustomerProps) {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
+  const [loading, setLoading] = useState(false); // Estado para controlar el loading al enviar el formulario
+  const [isUploading, setIsUploading] = useState(false); // Estado para controlar la subida de imagen
 
-  // Form data
+  // Datos del formulario
   const [formData, setFormData] = useState({
     name: "",
     country: "",
@@ -52,7 +59,7 @@ export function FormCreateCustomer({ onSuccess }: FormCreateCustomerProps) {
     imageUrl: "",
   });
 
-  // Basic field errors
+  // Estado para almacenar errores en los campos básicos
   const [errors, setErrors] = useState({
     name: "",
     country: "",
@@ -60,7 +67,7 @@ export function FormCreateCustomer({ onSuccess }: FormCreateCustomerProps) {
     dni: "",
   });
 
-  // Very basic validation
+  // Validación básica del formulario
   const validateForm = () => {
     const newErrors = {
       name: "",
@@ -69,34 +76,35 @@ export function FormCreateCustomer({ onSuccess }: FormCreateCustomerProps) {
       dni: "",
     };
 
-    // Name
+    // Validación del nombre: debe tener al menos 2 caracteres
     if (formData.name.length < 2) {
       newErrors.name = "El nombre debe tener al menos 2 caracteres";
     }
 
-    // Country
+    // Validación del país: debe estar seleccionado
     if (!formData.country) {
       newErrors.country = "Por favor selecciona un país";
     }
 
-    // Phone
+    // Validación del teléfono: debe coincidir con el patrón especificado
     const phoneRegex =
       /^\+?[0-9]{1,3}?[-.\s]?(\(?\d{1,4}\)?[-.\s]?)?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/;
     if (formData.phone && !phoneRegex.test(formData.phone)) {
       newErrors.phone = "Formato inválido. Ej: +51 999 999 999 o 999-999-999";
     }
 
-    // DNI
+    // Validación del DNI: debe tener exactamente 8 dígitos numéricos
     const dniRegex = /^[0-9]{8}$/;
     if (formData.dni && !dniRegex.test(formData.dni)) {
       newErrors.dni = "El DNI debe tener exactamente 8 dígitos numéricos";
     }
 
     setErrors(newErrors);
+    // Retorna verdadero si no hay errores en los campos
     return !Object.values(newErrors).some((error) => error);
   };
 
-  // Handle form submit
+  // Maneja el envío del formulario
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -104,15 +112,15 @@ export function FormCreateCustomer({ onSuccess }: FormCreateCustomerProps) {
     try {
       setLoading(true);
 
-      // POST to /api/companies
+      // Envío de los datos del formulario a la API para crear la compañía
       const response = await axios.post("/api/companies", formData);
       console.log("Compañía creada correctamente:", response.data);
       toast.success("Cliente creado exitosamente");
 
-      // Optional callback
+      // Ejecuta la callback onSuccess si está definida
       onSuccess?.();
 
-      // Refresh / navigate
+      // Actualiza y redirige la navegación
       router.refresh();
       router.push("/companies");
     } catch (error) {
@@ -128,9 +136,9 @@ export function FormCreateCustomer({ onSuccess }: FormCreateCustomerProps) {
       onSubmit={handleSubmit}
       className="max-w-3xl p-6 space-y-6 bg-background rounded-lg shadow-md dark:bg-secondary"
     >
-      {/* Grid: 2 columns for fields */}
+      {/* Grid: 2 columnas para los campos del formulario */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Name */}
+        {/* Campo: Nombre de la Empresa */}
         <div className="space-y-2">
           <Label htmlFor="name" className="text-sm font-medium text-foreground">
             Nombre de la Empresa
@@ -148,7 +156,7 @@ export function FormCreateCustomer({ onSuccess }: FormCreateCustomerProps) {
           )}
         </div>
 
-        {/* Country */}
+        {/* Campo: País */}
         <div className="space-y-2">
           <Label
             htmlFor="country"
@@ -179,7 +187,7 @@ export function FormCreateCustomer({ onSuccess }: FormCreateCustomerProps) {
           )}
         </div>
 
-        {/* Website */}
+        {/* Campo: Sitio Web */}
         <div className="space-y-2">
           <Label
             htmlFor="website"
@@ -199,7 +207,7 @@ export function FormCreateCustomer({ onSuccess }: FormCreateCustomerProps) {
           />
         </div>
 
-        {/* Phone */}
+        {/* Campo: Teléfono */}
         <div className="space-y-2">
           <Label
             htmlFor="phone"
@@ -222,7 +230,7 @@ export function FormCreateCustomer({ onSuccess }: FormCreateCustomerProps) {
           )}
         </div>
 
-        {/* DNI */}
+        {/* Campo: DNI */}
         <div className="space-y-2">
           <Label htmlFor="dni" className="text-sm font-medium text-foreground">
             DNI
@@ -241,7 +249,7 @@ export function FormCreateCustomer({ onSuccess }: FormCreateCustomerProps) {
         </div>
       </div>
 
-      {/* Image Upload */}
+      {/* Sección: Subida de imagen */}
       <div className="space-y-4">
         <Label className="flex items-center text-sm font-medium text-foreground">
           <CloudUpload className="mr-2 h-5 w-5 text-primary" />
@@ -328,7 +336,7 @@ export function FormCreateCustomer({ onSuccess }: FormCreateCustomerProps) {
                   }}
                 />
                 <p className="text-xs text-muted-foreground text-center mt-2">
-                PNG, JPG o Webp
+                  PNG, JPG o Webp
                   <br />
                   Máximo 4MB
                 </p>
@@ -338,7 +346,7 @@ export function FormCreateCustomer({ onSuccess }: FormCreateCustomerProps) {
         </div>
       </div>
 
-      {/* Action Buttons */}
+      {/* Botones de acción */}
       <div className="flex justify-end gap-4">
         <Button
           type="button"

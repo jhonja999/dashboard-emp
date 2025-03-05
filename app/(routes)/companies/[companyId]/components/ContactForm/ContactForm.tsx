@@ -1,5 +1,10 @@
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+/**
+ * Archivo: ContactForm.tsx
+ * Uso: Formulario para crear o actualizar un contacto asociado a una compañía.
+ */
+
+import { useState } from "react"; // Manejo de estados locales
+import { useRouter } from "next/navigation"; // Navegación en aplicaciones Next.js
 import axios from "axios";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -58,7 +63,10 @@ export function ContactForm({ initialData, companyId, onSuccess, isDialog }: Con
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Validación del formulario
+  /**
+   * Función que valida el formulario usando Zod. 
+   * Si hay errores, se almacenan en el estado `errors`.
+   */
   const validateForm = () => {
     try {
       formSchema.parse(formData);
@@ -78,7 +86,10 @@ export function ContactForm({ initialData, companyId, onSuccess, isDialog }: Con
     }
   };
 
-  // Manejo del envío del formulario
+  /**
+   * Maneja el envío del formulario para crear o actualizar el contacto.
+   * Si es un contacto nuevo, se hace un POST; si es existente, un PUT.
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) {
@@ -100,6 +111,7 @@ export function ContactForm({ initialData, companyId, onSuccess, isDialog }: Con
         toast.success("Contacto creado exitosamente");
         onSuccess?.(response.data);
       }
+      // Si el formulario no está en un diálogo, refrescar y redirigir
       if (!isDialog) {
         router.refresh();
         router.push(`/companies/${companyId}`);
@@ -189,7 +201,7 @@ export function ContactForm({ initialData, companyId, onSuccess, isDialog }: Con
           {errors.role && <p className="text-sm text-destructive">{errors.role}</p>}
         </div>
 
-        {/* Fecha de Inicio (Implementación creativa) */}
+        {/* Fecha de Inicio */}
         <div className="space-y-2 md:col-span-2">
           <Label htmlFor="startDate" className="flex items-center gap-2">
             <CalendarIcon className="h-4 w-4 text-muted-foreground" />
@@ -225,9 +237,7 @@ export function ContactForm({ initialData, companyId, onSuccess, isDialog }: Con
                 />
               </PopoverContent>
             </Popover>
-            {errors.startDate && <p className="text-sm text-destructive mt-1">{errors.startDate}</p>
-            }
-            
+            {errors.startDate && <p className="text-sm text-destructive mt-1">{errors.startDate}</p>}
           </div>
         </div>
       </div>
@@ -248,8 +258,8 @@ export function ContactForm({ initialData, companyId, onSuccess, isDialog }: Con
               ? "Actualizando..."
               : "Creando..."
             : initialData
-              ? "Actualizar contacto"
-              : "Crear contacto"}
+            ? "Actualizar contacto"
+            : "Crear contacto"}
         </Button>
       </div>
     </form>

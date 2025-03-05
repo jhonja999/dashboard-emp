@@ -1,10 +1,19 @@
+/**
+ * app\(routes)\companies\[companyId]\components\CompanyInformation\CompanyInformation.tsx
+ * Uso: Componente que muestra la información detallada de una empresa, incluyendo su imagen, país, sitio web, teléfono y DNI.
+ */
+
 "use client";
 
-import type { CompanyInformationProps } from "./CompanyInformation.types";
+import type { CompanyInformationProps } from "./CompanyInformation.types"; // Tipo de propiedades que recibe el componente
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Globe, Phone, MapPin, IdCardIcon } from "lucide-react";
 import Image from "next/image";
 
+/**
+ * Componente CompanyInformation: Renderiza un card con la información de la empresa.
+ * @param {CompanyInformationProps} company - Objeto que contiene los datos de la empresa.
+ */
 export function CompanyInformation({ company }: CompanyInformationProps) {
   return (
     <div className="space-y-6">
@@ -15,6 +24,7 @@ export function CompanyInformation({ company }: CompanyInformationProps) {
         <CardContent>
           <div className="flex flex-col md:flex-row gap-6">
             <div className="flex-shrink-0">
+              {/* Muestra la imagen de la empresa o un placeholder si no está disponible */}
               <Image
                 src={company.imageUrl || "/placeholder.webp"}
                 alt={company.name}
@@ -25,8 +35,10 @@ export function CompanyInformation({ company }: CompanyInformationProps) {
             </div>
 
             <div className="space-y-4">
+              {/* Nombre de la empresa */}
               <h2 className="text-2xl font-bold">{company.name}</h2>
 
+              {/* Datos relevantes de la empresa en un grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-center gap-2">
                   <MapPin className="h-5 w-5 text-muted-foreground" />
