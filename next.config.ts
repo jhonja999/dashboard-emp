@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Configuración de imágenes
   images: {
     domains: [
       "www.flaticon.com",
@@ -7,12 +8,6 @@ const nextConfig = {
       "plus.unsplash.com",
       "utfs.io",
     ],
-
-    "exclude": [
-      "node_modules",
-      ".next" // <--- Asegúrate de que esta línea exista
-    ],
-
     remotePatterns: [
       {
         protocol: "https",
@@ -37,11 +32,16 @@ const nextConfig = {
     ],
     unoptimized: true,
   },
+
+  // Opciones del compilador de Next.js
   compiler: {
     removeConsole: process.env.NODE_ENV === "production",
   },
+
   reactStrictMode: true,
-  swcMinify: true,
+
+  // ❌ Quita la línea "swcMinify: true," si usas Next 15 (ya no se usa).
+  // swcMinify: true,
 };
 
 export default nextConfig;
