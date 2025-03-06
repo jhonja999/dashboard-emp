@@ -7,6 +7,12 @@ const nextConfig = {
       "plus.unsplash.com",
       "utfs.io",
     ],
+
+    "exclude": [
+      "node_modules",
+      ".next" // <--- Asegúrate de que esta línea exista
+    ],
+
     remotePatterns: [
       {
         protocol: "https",
