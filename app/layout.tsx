@@ -1,44 +1,33 @@
-/**
- * Archivo: app/layout.tsx
- * Uso: Layout raíz de la aplicación. Configura Clerk para autenticación, aplica la fuente Inter y habilita el cambio de temas. 
- *      También incluye el componente Toaster para notificaciones.
- */
-
 import type { Metadata } from "next";
-import { ClerkProvider } from "@clerk/nextjs";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "next-themes";
-import { Toaster } from "@/components/ui/sonner";
+import { ClerkProvider } from "@clerk/nextjs";
+import Providers from "./providers"; // Importa tu componente con "use client"
 
 const inter = Inter({ subsets: ["latin"] });
 
-// Metadatos para la aplicación
+// Exportas metadata sin problemas
 export const metadata: Metadata = {
   title: "Dashboard NinaGold",
   description: "Exploración Minera",
 };
 
+// Este layout es un Server Component (NO usa "use client")
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <ClerkProvider>
-      <html lang="en" suppressHydrationWarning>
-        <body className={inter.className}>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
+    <html lang="en" suppressHydrationWarning>
+      <body className={inter.className}>
+        <ClerkProvider>
+          {/* Envuelves tus children en el componente "Providers" que sí es client */}
+          <Providers>
             {children}
-            <Toaster />
-          </ThemeProvider>
-        </body>
-        </html>
-    </ClerkProvider>
+          </Providers>
+        </ClerkProvider>
+      </body>
+    </html>
   );
 }

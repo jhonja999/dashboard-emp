@@ -1,47 +1,54 @@
-"use client"
-
-import { motion } from "framer-motion"
-import { useRef } from "react"
-import { useInView } from "framer-motion"
+"use client";
+import { motion } from "framer-motion";
+import { useRef } from "react";
+import { useInView } from "framer-motion";
+import { 
+  Mountain,
+  BarChart,
+  Clipboard,
+  Leaf,
+  Settings,
+  Recycle
+} from "lucide-react";
 
 const expertiseItems = [
   {
     title: "Cartografía Geológica",
     description:
       "Cartografía geológica de precisión utilizando técnicas avanzadas para identificar yacimientos minerales con una exactitud sin igual.",
-    icon: "🌋",
+    icon: <Mountain className="text-[#d4af37]" />,
   },
   {
     title: "Estimación de Recursos",
     description: "Estimación exhaustiva de recursos mediante modelos estadísticos y métodos innovadores de muestreo.",
-    icon: "📊",
+    icon: <BarChart className="text-[#d4af37]" />,
   },
   {
     title: "Estudios de Viabilidad",
     description: "Análisis detallados de viabilidad que equilibran el potencial económico con la sostenibilidad ambiental.",
-    icon: "📋",
+    icon: <Clipboard className="text-[#d4af37]" />,
   },
   {
     title: "Monitoreo Ambiental",
     description: "Sistemas de monitoreo ambiental de última generación que garantizan el cumplimiento normativo y la preservación ecológica.",
-    icon: "🌱",
+    icon: <Leaf className="text-[#d4af37]" />,
   },
   {
     title: "Gestión de Proyectos",
     description: "Gestión experta de proyectos que proporciona operaciones eficientes y una utilización óptima de los recursos.",
-    icon: "⚙️",
+    icon: <Settings className="text-[#d4af37]" />,
   },
   {
     title: "Minería Sostenible",
     description:
       "Enfoques innovadores para una minería sostenible que minimizan el impacto ambiental y maximizan los beneficios sociales.",
-    icon: "♻️",
+    icon: <Recycle className="text-[#d4af37]" />,
   },
-]
+];
 
 export function ExpertiseSection() {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: false, amount: 0.2 })
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: false, amount: 0.2 });
 
   return (
     <div ref={ref} className="py-20">
@@ -69,7 +76,6 @@ export function ExpertiseSection() {
           Basándonos en décadas de experiencia, ofrecemos servicios especializados adaptados para satisfacer las complejas exigencias de la exploración mineral moderna.
         </motion.p>
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
         {expertiseItems.map((item, index) => (
           <motion.div
@@ -89,5 +95,5 @@ export function ExpertiseSection() {
         ))}
       </div>
     </div>
-  )
+  );
 }
