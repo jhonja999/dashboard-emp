@@ -1,0 +1,8 @@
+.faqs-wrapper h3 {
+    all: unset;      /* elimina prácticamente todos los estilos por defecto */
+    font: inherit;   /* opcional: hereda la fuente del contenedor */
+    margin: 0;       /* quita márgenes por defecto */
+    /* agrega cualquier estilo mínimo que desees */
+    color: #d4af37;
+  }
+  

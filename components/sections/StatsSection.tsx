@@ -17,7 +17,7 @@ export function StatsSection() {
 
   return (
     <div ref={ref} className="py-16">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-6xl mx-auto">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-6xl mx-auto ">
         {stats.map((stat, index) => (
           <motion.div
             key={stat.label}

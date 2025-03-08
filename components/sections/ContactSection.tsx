@@ -1,33 +1,33 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { motion } from "framer-motion"
-import { useRef, useState } from "react"
-import { useInView } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { MapPin, Phone, Mail, Send } from "lucide-react"
+import { motion } from "framer-motion";
+import { useRef, useState } from "react";
+import { useInView } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { MapPin, Phone, Mail, Send } from "lucide-react";
 
 export function ContactSection() {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: false, amount: 0.1 })
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: false, amount: 0.1 });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
+    e.preventDefault();
+    setIsSubmitting(true);
 
     // Simulación de envío del formulario
     setTimeout(() => {
-      setIsSubmitting(false)
-      alert("¡Formulario enviado! Esto es una demostración.")
-    }, 1500)
-  }
+      setIsSubmitting(false);
+      alert("¡Formulario enviado! Esto es una demostración.");
+    }, 1500);
+  };
 
   return (
-    <div ref={ref} className="py-20">
+    <div ref={ref} className="py-10">
       <div className="text-center mb-16">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
@@ -49,7 +49,9 @@ export function ContactSection() {
           transition={{ duration: 0.6, delay: 0.4 }}
           className="max-w-2xl mx-auto text-[#f4f4f4]/80"
         >
-          Comuníquese con nuestro equipo para discutir sus necesidades de exploración, oportunidades de colaboración o cualquier consulta que tenga.
+          Comuníquese con nuestro equipo para discutir sus necesidades de
+          exploración, oportunidades de colaboración o cualquier consulta que
+          tenga.
         </motion.p>
       </div>
 
@@ -60,7 +62,9 @@ export function ContactSection() {
           transition={{ duration: 0.6 }}
           className="space-y-8"
         >
-          <h3 className="text-2xl font-bold text-[#d4af37] mb-6">Nuestra Información</h3>
+          <h3 className="text-2xl font-bold text-[#d4af37] mb-6">
+            Nuestra Información
+          </h3>
 
           <div className="flex items-start space-x-4">
             <div className="bg-[#d4af37]/10 p-3 rounded-full">
@@ -68,10 +72,11 @@ export function ContactSection() {
             </div>
             <div>
               <h4 className="text-[#f4f4f4] font-medium mb-1">Ubicación</h4>
-              <p className="text-[#f4f4f4]/70">
-                Avenida Minera 123, Distrito Dorado
+              <p className="text-white/70 leading-relaxed">
+                Miraflores, Lima, Perú.
                 <br />
-                Cajamarca, 89501, Perú
+                Cajamarca, Perú.
+                <br />Y en donde necesites.
               </p>
             </div>
           </div>
@@ -83,9 +88,9 @@ export function ContactSection() {
             <div>
               <h4 className="text-[#f4f4f4] font-medium mb-1">Teléfono</h4>
               <p className="text-[#f4f4f4]/70">
-                +1 (555) 123 4567
+                +51 (555) 123 4567
                 <br />
-                +1 (555) 765 4321
+                +51 (555) 765 4321
               </p>
             </div>
           </div>
@@ -95,7 +100,9 @@ export function ContactSection() {
               <Mail className="h-6 w-6 text-[#d4af37]" />
             </div>
             <div>
-              <h4 className="text-[#f4f4f4] font-medium mb-1">Correo Electrónico</h4>
+              <h4 className="text-[#f4f4f4] font-medium mb-1">
+                Correo Electrónico
+              </h4>
               <p className="text-[#f4f4f4]/70">
                 info@ninagold.com
                 <br />
@@ -110,7 +117,9 @@ export function ContactSection() {
           animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 30 }}
           transition={{ duration: 0.6 }}
         >
-          <h3 className="text-2xl font-bold text-[#d4af37] mb-6">Envíenos un Mensaje</h3>
+          <h3 className="text-2xl font-bold text-[#d4af37] mb-6">
+            Envíenos un Mensaje
+          </h3>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -160,5 +169,5 @@ export function ContactSection() {
         </motion.div>
       </div>
     </div>
-  )
+  );
 }
