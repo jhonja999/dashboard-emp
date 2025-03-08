@@ -3,7 +3,8 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 // Función para identificar rutas protegidas
 const isProtectedRoute = createRouteMatcher([
   '/dashboard(.*)', 
-  '/companies(.*)', 
+  '/companies(.*)',
+  '/tasks(.*)',  
   '/forum(.*)',
 ]);
 

@@ -1,14 +1,3 @@
-/* 
-Home
-placeholders 
-
-imageUrl="https://images.unsplash.com/photo-1517089152318-42ec560349c0?q=80&w=1548&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-
-imageUrl="https://images.unsplash.com/photo-1587919968590-fbc98cea6c9a?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-
-imageUrl="https://images.unsplash.com/photo-1599756719094-9e28479389c4?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-
-*/
 "use client";
 
 import { useEffect, useState, useRef } from "react";
@@ -23,24 +12,26 @@ import { ContactSection } from "@/components/sections/ContactSection";
 import { Footer } from "@/components/Footer";
 
 /**
- * Componente principal de la página de inicio.
- * Incluye todas las secciones: Hero, Acerca de, Servicios, Estadísticas, Proyectos y Contacto.
- * Se utiliza un estado para controlar el renderizado en el lado del cliente.
+ * Página de inicio "Home" principal con secciones: Hero, Acerca, Servicios, Estadísticas, Proyectos y Contacto.
+ * "use client" para manejar estados/efectos en el cliente.
  */
 export default function Inicio() {
   const [esCliente, setEsCliente] = useState(false);
   const seccionRef = useRef<HTMLDivElement>(null);
 
-  // Efecto que asegura que el componente se renderice solo en el cliente
+  // Efecto para asegurar renderizado en el cliente
   useEffect(() => {
     setEsCliente(true);
   }, []);
 
-  // Si todavía no se confirma el renderizado en el cliente, no mostramos nada
+  // Evita mostrar contenido antes de confirmar que estamos en cliente
   if (!esCliente) return null;
 
   return (
-    <div ref={seccionRef} className="relative">
+    <div
+      ref={seccionRef}
+      className="relative overflow-x-hidden bg-[#111111]"
+    >
       {/* Barra de navegación */}
       <NavBar />
 
@@ -55,26 +46,31 @@ export default function Inicio() {
         </ParallaxSection>
       </section>
 
-      {/* Sección de "Acerca de" */}
-      <section id="acerca" className="bg-[#111111]">
+      {/* Sección "Acerca de" */}
+      <section
+        id="acerca"
+        className="bg-[#111111] py-20 px-4 sm:px-6 md:px-8"
+      >
         <AboutSection />
       </section>
 
-      {/* Sección de "Servicios" (Expertise) */}
+      {/* Sección "Servicios" (Expertise) */}
       <section id="servicios" className="relative">
         <ParallaxSection
           imageUrl="https://images.unsplash.com/photo-1587919968590-fbc98cea6c9a?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
           overlayColor="rgba(17, 17, 17, 0.85)"
           height="auto"
         >
-          <ExpertiseSection />
+          <div className="py-20 px-4 sm:px-6 md:px-8">
+            <ExpertiseSection />
+          </div>
         </ParallaxSection>
       </section>
 
       {/* Sección de estadísticas */}
       <section
         id="estadisticas"
-        className="bg-[#111111]/90 backdrop-blur-sm py-12"
+        className="bg-[#111111]/90 backdrop-blur-sm py-20 px-4 sm:px-6 md:px-8"
       >
         <StatsSection />
       </section>
@@ -86,12 +82,17 @@ export default function Inicio() {
           overlayColor="rgba(17, 17, 17, 0.85)"
           height="auto"
         >
-          <ProjectsSection />
+          <div className="py-20 px-4 sm:px-6 md:px-8">
+            <ProjectsSection />
+          </div>
         </ParallaxSection>
       </section>
 
       {/* Sección de contacto */}
-      <section id="contacto" className="bg-[#111111]">
+      <section
+        id="contacto"
+        className="bg-[#111111] py-20 px-4 sm:px-6 md:px-8"
+      >
         <ContactSection />
       </section>
 

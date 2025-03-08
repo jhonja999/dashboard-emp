@@ -15,7 +15,7 @@ import {
 export const dataGeneralSideBar = [
   { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
   { label: "Companies", icon: BarChart, href: "/companies" },
-  { label: "Calendar", icon: Calendar, href: "/calendar" },
+  { label: "Calendar", icon: Calendar, href: "/tasks" },
 ];
 
 export const dataToolSideBar = [

@@ -1,4 +1,4 @@
-/*
+/**
  * Archivo: schema.prisma
  * Uso: Definición del esquema de la base de datos, configuraciones de Prisma y definición de modelos para la aplicación.
  */
@@ -15,35 +15,35 @@ datasource db {
 // Modelo: User
 // Uso: Representa a un usuario en la aplicación, con sus datos básicos y relaciones con contactos y eventos.
 model User {
-  id         String     @id @default(cuid()) // Identificador único generado automáticamente
-  email      String     @unique // Email único del usuario
-  name       String? // Nombre del usuario (opcional)
-  contacts   Contact[] // Relación con los contactos asociados al usuario
-  events     Event[] // Relación con los eventos creados por el usuario
+  id       String    @id @default(cuid()) // Identificador único generado automáticamente
+  email    String    @unique // Email único del usuario
+  name     String? // Nombre del usuario (opcional)
+  contacts Contact[] // Relación con los contactos asociados al usuario
+  events   Event[] // Relación con los eventos creados por el usuario
 }
 
-/* Modelo comentado: Company
-   Uso: Versión anterior del modelo Company, actualmente comentada.
-model Company {
-  id        String   @id @default(cuid())
-  name      String
-  country   String
-  website   String?
-  phone     String?
-  dni       String?
-  imageUrl  String?
-  userId    String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([userId])
-}
-*/
+/**
+ * Modelo comentado: Company
+ * Uso: Versión anterior del modelo Company, actualmente comentada.
+ * model Company {
+ * id        String   @id @default(cuid())
+ * name      String
+ * country   String
+ * website   String?
+ * phone     String?
+ * dni       String?
+ * imageUrl  String?
+ * userId    String
+ * createdAt DateTime @default(now())
+ * updatedAt DateTime @updatedAt
+ * @@index([userId])
+ * }
+ */
 
 // Modelo: Company
 // Uso: Representa a una empresa con su información relevante y la relación con contactos.
 model Company {
-  id        String   @id @default(cuid()) // Identificador único de la empresa
+  id        String    @id @default(cuid()) // Identificador único de la empresa
   name      String // Nombre de la empresa
   country   String // País de origen de la empresa
   website   String? // Sitio web de la empresa (opcional)
@@ -51,43 +51,54 @@ model Company {
   dni       String? // Número de identificación fiscal (opcional)
   imageUrl  String? // URL de la imagen representativa de la empresa (opcional)
   userId    String // Identificador del usuario propietario de la empresa
-  createdAt DateTime @default(now()) // Fecha de creación de la empresa
-  updatedAt DateTime @updatedAt // Fecha de última actualización de la empresa
+  createdAt DateTime  @default(now()) // Fecha de creación de la empresa
+  updatedAt DateTime  @updatedAt // Fecha de última actualización de la empresa
+  Contact   Contact[] // Relación con los contactos asociados a la empresa
+  Events    Event[] //ultimo agregado
 
   @@index([userId]) // Índice sobre el campo userId para optimizar consultas
-  Contact Contact[] // Relación con los contactos asociados a la empresa
 }
 
 // Modelo: Contact
 // Uso: Representa a un contacto asociado a una empresa, con información personal y laboral.
 model Contact {
-  id          String   @id @default(cuid()) // Identificador único del contacto
-  name        String // Nombre del contacto
-  email       String // Email del contacto
-  phone       String? // Teléfono del contacto (opcional)
-  role        String   @default("employee") // Rol del contacto, por defecto "employee"
-  startDate   DateTime // Fecha de inicio o contratación del contacto (asegúrate de que sea DateTime)
-  companyId   String // Identificador de la empresa a la que pertenece el contacto
-  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade) // Relación con la empresa, con eliminación en cascada
-  userId      String // Identificador del usuario propietario o relacionado con el contacto
-  createdAt   DateTime @default(now()) // Fecha de creación del contacto
-  updatedAt   DateTime @updatedAt // Fecha de última actualización del contacto
+  id        String   @id @default(cuid()) // Identificador único del contacto
+  name      String // Nombre del contacto
+  email     String // Email del contacto
+  phone     String? // Teléfono del contacto (opcional)
+  role      String   @default("employee") // Rol del contacto, por defecto "employee"
+  startDate DateTime // Fecha de inicio o contratación del contacto (asegúrate de que sea DateTime)
+  companyId String // Identificador de la empresa a la que pertenece el contacto
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade) // Relación con la empresa, con eliminación en cascada
+  userId    String // Identificador del usuario propietario o relacionado con el contacto
+  createdAt DateTime @default(now()) // Fecha de creación del contacto
+  updatedAt DateTime @updatedAt // Fecha de última actualización del contacto
+  User      User[] // Relación con el modelo User (usuarios asociados)
 
   @@index([companyId]) // Índice sobre el campo companyId para optimizar consultas
   @@index([userId]) // Índice sobre el campo userId para optimizar consultas
-  User User[] // Relación con el modelo User (usuarios asociados)
 }
 
 // Modelo: Event
 // Uso: Representa un evento creado por un usuario, con detalles de su duración y descripción.
 model Event {
-  id          String    @id @default(cuid()) // Identificador único del evento
-  title       String // Título del evento
-  description String? // Descripción del evento (opcional)
-  startDate   DateTime // Fecha y hora de inicio del evento
-  endDate     DateTime // Fecha y hora de finalización del evento
-  userId      String // Identificador del usuario que creó el evento
-  user        User      @relation(fields: [userId], references: [id]) // Relación con el usuario creador del evento
-  createdAt   DateTime  @default(now()) // Fecha de creación del evento
-  updatedAt   DateTime  @updatedAt // Fecha de última actualización del evento
+  id          String    @id @default(cuid())
+  companyId   String
+  companyName String? // <--- Campo adicional para guardar el nombre de la compañía
+  title       String
+  description String?
+  start       DateTime
+  allDay      Boolean
+  timeFormat  String
+  endDate     DateTime?
+  userId      String
+  User        User[] // (Asumiendo que así lo definiste)
+
+  // Relación inversa con Company
+  company Company @relation(fields: [companyId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([companyId])
 }
