@@ -204,7 +204,7 @@ export function CompanyForm({ initialData, onSuccess, onCancel }: CompanyFormPro
             {formData.imageUrl ? (
               <>
                 <Image
-                  src={formData.imageUrl || "/placeholder.svg"}
+                  src={formData.imageUrl || "/placeholder.webp"}
                   alt="Company Profile"
                   fill
                   className="object-cover"

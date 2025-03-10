@@ -72,7 +72,7 @@ export function ProjectsSection() {
           >
             <div className="relative aspect-video">
               <Image
-                src={project.image || "/placeholder.svg"}
+                src={project.image || "/placeholder.webp"}
                 alt={project.title}
                 fill
                 className="object-cover group-hover:scale-105 transition-transform duration-500"
