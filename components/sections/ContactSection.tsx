@@ -27,8 +27,8 @@ export function ContactSection() {
   };
 
   return (
-    <div ref={ref} className="py-10">
-      <div className="text-center mb-16">
+    <div ref={ref} className="py-5">
+      <div className="text-center mb-12">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
