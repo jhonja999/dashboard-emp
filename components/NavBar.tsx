@@ -8,8 +8,9 @@ import { Logo } from "./Logo";
 import { ThemeToggle } from "./ui/theme-toggle";
 import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { Button } from "./ui/button";
-import { Menu, X, LayoutDashboard } from "lucide-react";
+import { Menu, X, /* LayoutDashboard */ } from "lucide-react";
 import { cn } from "@/lib/utils";
+import DashboardLayoutIcon from "./ui/DashboardLayoutIcon";
 
 interface NavItem {
   label: string;
@@ -210,10 +211,11 @@ export function NavBar() {
               <div className="hidden md:flex items-center space-x-2">
                 <Button
                   variant="ghost"
-                  className="items-center gap-2 text-[#d4af37] hover:bg-[#d4af37]/10 transition-colors duration-200"
+                  className="items-center gap-2 text-[#d4af37] hover:bg-[#d4af37]/10 hover:text-[#f8ce42] transition-colors duration-300"
                   onClick={navigateToDashboard}
                 >
-                  <LayoutDashboard className="h-4 w-4" />
+                  {/* <LayoutDashboard className="h-4 w-4" /> */}
+                  <DashboardLayoutIcon />
                   <span>Dashboard</span>
                 </Button>
                 {/* UserButton hidden in top bar on mobile */}
@@ -289,7 +291,8 @@ export function NavBar() {
                       className="w-full bg-[#d4af37]/20 text-[#d4af37] hover:bg-[#d4af37]/30 transition-colors duration-200 rounded-full"
                       onClick={navigateToDashboard}
                     >
-                      <LayoutDashboard className="mr-2 h-4 w-4" />
+                      <DashboardLayoutIcon />
+                      {/* <LayoutDashboard className="mr-2 h-4 w-4" /> */}
                       Dashboard
                     </Button>
                   </div>

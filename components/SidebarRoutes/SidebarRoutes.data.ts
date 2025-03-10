@@ -9,11 +9,12 @@ import {
   CircleHelpIcon,
   Calendar,
   BarChart,
-  LayoutDashboard,
+  /* LayoutDashboard, */
 } from "lucide-react";
+import DashboardLayoutIcon from "../ui/DashboardLayoutIcon";
 
 export const dataGeneralSideBar = [
-  { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
+  { label: "Dashboard", icon: DashboardLayoutIcon, href: "/dashboard" },
   { label: "Companies", icon: BarChart, href: "/companies" },
   { label: "Calendar", icon: Calendar, href: "/tasks" },
 ];

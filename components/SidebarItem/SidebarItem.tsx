@@ -14,8 +14,8 @@ export function SidebarItem(props: SidebarItemProps) {
     <Link
       href={href}
       className={cn(
-        "flex gap-x-2 mt-2 light:text-slate-700 dark:text-white text-sm items-center hover:bg-slate-300/20 p-2 rounded-lg cursor-pointer",
-        activePath && "bg-slate-400/20"
+        "flex gap-x-2 mt-2 light:text-slate-700 dark:text-white text-sm items-center hover:bg-slate-500/55 dark:hover:bg-slate-400/35 p-2 rounded-lg cursor-pointer",
+        activePath && "bg-slate-500/20"
       )}
     >
       <Icon className="h-5 w-5" strokeWidth={1} />
