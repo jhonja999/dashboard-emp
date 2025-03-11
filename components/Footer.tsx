@@ -69,7 +69,7 @@ export function Footer() {
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="h-4 w-4 text-white/70" />
-                <span>ivan@dronefilmsproject.com</span>
+                <span>contacto@ninagold.com</span>
               </li>
             </ul>
           </div>
@@ -94,6 +94,14 @@ export function Footer() {
                   className="hover:text-white transition-colors block"
                 >
                   Contacto
+                </a>
+              </li>
+              <li>
+                <a
+                  href="faqs"
+                  className="hover:text-white transition-colors block"
+                >
+                   Política SIG
                 </a>
               </li>
               <li>
