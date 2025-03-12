@@ -18,9 +18,9 @@ export const dataGeneralSideBar = [
   { label: "Calendar", icon: Calendar, href: "/tasks" },
 ];
 
-export const dataToolSideBar = [
-  { label: "Faqs", icon: CircleHelpIcon, href: "/faqs" },
+export const dataToolSideBar = [  
   { label: "Analytics", icon: BarChart4, href: "/analytics" },
+  { label: "Faqs", icon: CircleHelpIcon, href: "/faqs" },
 ];
 
 export const dataSupportSideBar = [
