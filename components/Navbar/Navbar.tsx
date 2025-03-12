@@ -1,118 +1,164 @@
+//Navbar del dashboard con buscador
 "use client";
 
 import * as React from "react";
-import { useState } from "react";
-import { useRouter } from "next/navigation"; // Para navegar a rutas Next.js
+import { useCallback, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import axios from "axios";
 import { Menu, Search } from "lucide-react";
 import { UserButton } from "@clerk/nextjs";
 import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Button } from "@/components/ui/button";
 
-/**
- * Props para el componente Navbar
- */
+// Type definitions
 interface NavbarProps {
-  onToggleSidebar: () => void; // Función que alterna la barra lateral en modo móvil
+  onToggleSidebar: () => void;
 }
 
-/**
- * Componente Navbar
- * - Botón hamburguesa (para dispositivos móviles)
- * - Campo de búsqueda con un dropdown de sugerencias
- * - Cambio de tema (ThemeToggle)
- * - Autenticación (UserButton)
- */
+interface Route {
+  label: string;
+  href: string;
+}
+
+interface Company {
+  id: string;
+  name: string;
+}
+
+// Static routes with keywords
+const POSSIBLE_ROUTES: Route[] = [
+  { label: "Home", href: "/" },
+  { label: "Dashboard, Inicio", href: "/dashboard" },
+  { label: "Companies, Compañias, Contacto, Empleado", href: "/companies" },
+  { label: "Calendar, Evento, Reunión", href: "/tasks" },
+  { label: "Analytics, Métricas, Metricas, Gráfico, Grafico, usuarios, cantidad", href: "/analytics" },
+  { label: "Faqs, Preguntas", href: "/faqs" },
+  { label: "Perfil, Profile, Usuario", href: "/profile" },
+  { label: "Configuración, Settings", href: "/settings" },
+];
+
 export default function Navbar({ onToggleSidebar }: NavbarProps) {
   const router = useRouter();
-
-  // Estado local para el texto de búsqueda
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [results, setResults] = useState<Route[]>([]);
 
-  // Rutas principales con palabras clave
-  const possibleRoutes = [
-    { label: "Home", href: "/" },
-    { label: "Dashboard, Inicio", href: "/dashboard" },
-    { label: "Companies, Compañias, Contacto, Empleado", href: "/companies" },
-    { label: "Calendar, Evento, Reunión", href: "/tasks" },
-    { label: "Analytics, Métricas, Metricas, Gráfico, Grafico, usuarios, cantidad", href: "/analytics" },
-    { label: "Faqs, Preguntas", href: "/faqs" },
-    // Rutas extras de ejemplo
-    { label: "Perfil, Profile, Usuario", href: "/profile" },
-    { label: "Configuración, Settings", href: "/settings" },
-  ];
+  // Memoized filtered routes
+  const filteredRoutes = useMemo(() => 
+    searchTerm
+      ? POSSIBLE_ROUTES.filter((route) =>
+          route.label.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+      : [],
+    [searchTerm]
+  );
 
-  /**
-   * Función de filtrado de rutas:
-   * - Convierte label y searchTerm a minúsculas
-   * - Muestra la ruta si el searchTerm está incluido en el label
-   */
-  const filteredRoutes = searchTerm
-    ? possibleRoutes.filter((route) =>
-        route.label.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    : [];
+  // Memoized company ID check
+  const isCompanyId = useMemo(() => 
+    searchTerm.match(/^[a-zA-Z0-9]{12,}$/),
+    [searchTerm]
+  );
 
-  /**
-   * Detección de si el usuario ha ingresado un ID de compañía
-   * (p.e. `cm85u3qpk000mvktwncavtvz6`).
-   * Aquí usamos un patrón simplificado:
-   * - `^[a-zA-Z0-9]{12,}$` => 12 o más caracteres alfanuméricos
-   * Si coincide, sugerimos `/companies/${searchTerm}`.
-   */
-  const isCompanyId = searchTerm.match(/^[a-zA-Z0-9]{12,}$/);
-  const companyIdRoute = isCompanyId
-    ? [{ label: `Ir a Compañía ID: ${searchTerm}`, href: `/companies/${searchTerm}` }]
-    : [];
+  // Memoized final suggestions
+  const finalSuggestions = useMemo(() => 
+    [...filteredRoutes, ...results],
+    [filteredRoutes, results]
+  );
 
-  // Combina las rutas filtradas con la posible ruta de ID
-  const finalSuggestions = [...filteredRoutes, ...companyIdRoute];
+  // Callbacks for handlers
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  }, []);
+
+  const handleRouteClick = useCallback((href: string) => {
+    router.push(href);
+    setSearchTerm("");
+  }, [router]);
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  }, [searchTerm]); // Include searchTerm in dependencies
+
+  // Search function with error handling
+  const handleSearch = useCallback(async () => {
+    if (isCompanyId) {
+      handleRouteClick(`/companies/${searchTerm}`);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setResults([]);
+
+      const { data } = await axios.get<Company[]>("/api/companies/search", {
+        params: { term: searchTerm },
+      });
+
+      setResults(
+        data.map((company) => ({
+          label: company.name,
+          href: `/companies/${company.id}`,
+        }))
+      );
+    } catch (error) {
+      console.error("Error searching companies:", error);
+      // Consider adding error state and UI feedback
+    } finally {
+      setLoading(false);
+    }
+  }, [searchTerm, isCompanyId, handleRouteClick]);
+
+  // Extracted Suggestion component
+  const SuggestionsList = React.memo(function SuggestionsList() {
+    if (!searchTerm) return null;
+
+    return (
+      <div className="absolute z-10 mt-1 w-full bg-popover border border-border rounded-md shadow-lg text-foreground">
+        {finalSuggestions.length > 0 ? (
+          finalSuggestions.map((route) => (
+            <button
+              key={route.href}
+              onClick={() => handleRouteClick(route.href)}
+              className="w-full text-left px-3 py-2 hover:bg-accent hover:text-accent-foreground transition-colors rounded-md"
+            >
+              {route.label}
+            </button>
+          ))
+        ) : (
+          <div className="px-3 py-2 text-sm text-muted-foreground">
+            {loading ? "Buscando..." : "No results"}
+          </div>
+        )}
+      </div>
+    );
+  });
 
   return (
     <nav className="flex items-center px-4 gap-x-4 md:px-6 justify-between w-full bg-background border-b h-20 relative">
-      {/* Botón hamburguesa (solo se ve en pantallas pequeñas) */}
       <div className="block xl:hidden">
         <Button variant="outline" onClick={onToggleSidebar}>
           <Menu className="w-6 h-6" />
         </Button>
       </div>
 
-      {/* Barra de búsqueda (visible en md en adelante) */}
       <div className="relative w-[380px] hidden md:block">
         <Input
           placeholder="Buscar rutas, palabras clave o ID"
           className="rounded-lg"
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={handleSearchChange}
+          onKeyDown={handleKeyDown}
         />
-        {/* Icono de búsqueda */}
-        <Search strokeWidth={1} className="absolute top-2 right-2 text-muted-foreground" />
-
-        {/* Dropdown de sugerencias */}
-        {searchTerm && (
-          <div className="absolute z-10 mt-1 w-full bg-popover border border-border rounded-md shadow-lg text-foreground">
-            {finalSuggestions.length > 0 ? (
-              finalSuggestions.map((route) => (
-                <button
-                  key={route.href}
-                  onClick={() => {
-                    // Navegamos a la ruta y limpiamos búsqueda
-                    router.push(route.href);
-                    setSearchTerm("");
-                  }}
-                  className="w-full text-left px-3 py-2 hover:bg-accent hover:text-accent-foreground transition-colors rounded-md"
-                >
-                  {route.label}
-                </button>
-              ))
-            ) : (
-              <div className="px-3 py-2 text-sm text-muted-foreground">No results</div>
-            )}
-          </div>
-        )}
+        <Search 
+          strokeWidth={1} 
+          className="absolute top-2 right-2 text-muted-foreground" 
+        />
+        <SuggestionsList />
       </div>
 
-      {/* Sección derecha: cambio de tema y botón de usuario */}
       <div className="flex gap-x-2 items-center">
         <ThemeToggle />
         <UserButton />

@@ -33,6 +33,31 @@ interface Company {
 
 // Definimos las columnas de la tabla para la gestión de compañías
 export const columns: ColumnDef<Company>[] = [
+  
+  {
+    id: "actions",
+    header: "Detalle",
+    cell: ({ row }) => {
+      const { id } = row.original;
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost">
+              <MoreHorizontal className="w-5 h-5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start">
+            <DropdownMenuItem asChild>
+              <Link href={`/companies/${id}`}>
+                <Pencil className="w-4 h-4 mr-2" />
+                Ver Contacto y Editar
+              </Link>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    },
+  },
   {
     accessorKey: "imageUrl",
     header: "Profile Image",
@@ -127,30 +152,6 @@ export const columns: ColumnDef<Company>[] = [
         </a>
       ) : (
         <span className="text-gray-400">No disponible</span>
-      );
-    },
-  },
-  {
-    id: "actions",
-    header: "Actions",
-    cell: ({ row }) => {
-      const { id } = row.original;
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost">
-              <MoreHorizontal className="w-5 h-5" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem asChild>
-              <Link href={`/companies/${id}`}>
-                <Pencil className="w-4 h-4 mr-2" />
-                Edit
-              </Link>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
       );
     },
   },
