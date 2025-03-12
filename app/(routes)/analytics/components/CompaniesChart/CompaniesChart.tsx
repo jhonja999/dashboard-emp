@@ -15,14 +15,14 @@ import {
 import { useTheme } from "next-themes";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { Search, Calendar, Users, XCircle, ChartColumnIncreasing } from "lucide-react";
+import { Search, Calendar, Users, XCircle, ChartColumnIncreasing, BarChart3, BarChartHorizontal } from "lucide-react";
 import { toast } from "sonner";
 
 // Tipado mejorado para Company
 interface Company {
   id: string;
   name: string;
-  Contact: { id: string }[]; // Elimina el uso de any
+  Contact: { id: string }[];
 }
 
 interface Event {
@@ -44,6 +44,7 @@ export function CompaniesChart({ companies, events }: CompaniesChartProps) {
   const colorEmps = isDarkMode ? "#a855f7" : "#10b981";
 
   const [searchTerm, setSearchTerm] = useState("");
+  const [isHorizontal, setIsHorizontal] = useState(false);
 
   const chartData = useMemo(() => {
     return companies
@@ -54,7 +55,7 @@ export function CompaniesChart({ companies, events }: CompaniesChartProps) {
         id: company.id,
         name: company.name,
         eventCount: events.filter((ev) => ev.companyId === company.id).length,
-        empCount: company.Contact?.length ?? 0 // Tipado correcto
+        empCount: company.Contact?.length ?? 0
       }));
   }, [companies, events, searchTerm]);
 
@@ -137,6 +138,124 @@ export function CompaniesChart({ companies, events }: CompaniesChartProps) {
     );
   };
 
+  // Renderiza el gráfico vertical (default)
+  const renderVerticalChart = () => (
+    <ResponsiveContainer width="100%" height="100%">
+      <BarChart
+        data={chartData}
+        margin={{ top: 30, right: 0, left: 0, bottom: 70 }}
+        barCategoryGap={24}
+      >
+        <CartesianGrid strokeDasharray="4 4" className="opacity-30" />
+        <XAxis 
+          dataKey="name" 
+          angle={-45} 
+          textAnchor="end" 
+          height={70} 
+          tickMargin={16}
+          tickFormatter={(value) => 
+            value.length > 12 ? value.slice(0, 12) + "..." : value
+          }
+        />
+        <YAxis />
+        <Tooltip content={<CustomTooltip />} />
+        <Legend 
+          verticalAlign="top"
+          wrapperStyle={{ 
+            paddingTop: "10px",
+            paddingBottom: "10px"
+          }}
+          formatter={(value) => (
+            <span className="text-base font-medium px-2">{value}</span>
+          )}
+        />
+        <Bar
+          dataKey="eventCount"
+          name="Eventos"
+          fill={colorEvents}
+          radius={[6, 6, 0, 0]}
+          barSize={64}
+          onClick={(barData) => handleBarClick(barData)}
+        >
+          {chartData.map((entry) => (
+            <Cell key={`evt-${entry.id}`} cursor="pointer" />
+          ))}
+        </Bar>
+        <Bar
+          dataKey="empCount"
+          name="Empleados"
+          fill={colorEmps}
+          radius={[6, 6, 0, 0]}
+          barSize={64}
+          onClick={(barData) => handleBarClick(barData)}
+        >
+          {chartData.map((entry) => (
+            <Cell key={`emp-${entry.id}`} cursor="pointer" />
+          ))}
+        </Bar>
+      </BarChart>
+    </ResponsiveContainer>
+  );
+
+  // Renderiza el gráfico horizontal (cuando se activa)
+  const renderHorizontalChart = () => (
+    <ResponsiveContainer width="100%" height="100%">
+      <BarChart
+        data={chartData}
+        layout="vertical"
+        margin={{ top: 30, right: 10, left: -50, bottom: 10 }}
+        barCategoryGap={12}
+      >
+        <CartesianGrid strokeDasharray="4 4" className="opacity-30" />
+        <XAxis type="number" />
+        <YAxis 
+          dataKey="name" 
+          type="category"
+          tick={{ fontSize: 12 }}
+          width={140}
+          tickFormatter={(value) => 
+            value.length > 18 ? value.slice(0, 18) + "..." : value
+          }
+        />
+        <Tooltip content={<CustomTooltip />} />
+        <Legend 
+          verticalAlign="top"
+          wrapperStyle={{ 
+            paddingTop: "10px",
+            paddingBottom: "10px"
+          }}
+          formatter={(value) => (
+            <span className="text-base font-medium px-2">{value}</span>
+          )}
+        />
+        <Bar
+          dataKey="eventCount"
+          name="Eventos"
+          fill={colorEvents}
+          radius={[0, 6, 6, 0]}
+          barSize={16}
+          onClick={(barData) => handleBarClick(barData)}
+        >
+          {chartData.map((entry) => (
+            <Cell key={`evt-${entry.id}`} cursor="pointer" />
+          ))}
+        </Bar>
+        <Bar
+          dataKey="empCount"
+          name="Empleados"
+          fill={colorEmps}
+          radius={[0, 6, 6, 0]}
+          barSize={16}
+          onClick={(barData) => handleBarClick(barData)}
+        >
+          {chartData.map((entry) => (
+            <Cell key={`emp-${entry.id}`} cursor="pointer" />
+          ))}
+        </Bar>
+      </BarChart>
+    </ResponsiveContainer>
+  );
+
   return (
     <div className="w-full space-y-7">
       {/* Título y descripción mejorada */}
@@ -154,8 +273,8 @@ export function CompaniesChart({ companies, events }: CompaniesChartProps) {
         </p>
       </div>
 
-      {/* Búsqueda responsiva */}
-      <div className="flex flex-col sm:flex-row items-center gap-3 w-full">
+      {/* Control panel - Search and Layout toggle */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 w-full">
         <div className="relative w-full sm:w-80">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
           <input
@@ -163,77 +282,45 @@ export function CompaniesChart({ companies, events }: CompaniesChartProps) {
             placeholder="Buscar compañía..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-3 py-2 rounded-md border border-gray-300 
-                       focus:outline-none focus:border-blue-400 dark:bg-[#1c1c1c]
-                       dark:border-gray-600 dark:focus:border-blue-500 
-                       transition-colors text-sm sm:text-base"
+            className="w-full pl-10 pr-10 py-2 rounded-md border border-gray-300 
+                     focus:outline-none focus:border-blue-400 dark:bg-[#1c1c1c]
+                     dark:border-gray-600 dark:focus:border-blue-500 
+                     transition-colors text-sm sm:text-base"
           />
+          {searchTerm && (
+            <button
+              onClick={() => setSearchTerm("")}
+              className="absolute right-2 top-1/2 transform -translate-y-1/2"
+            >
+              <XCircle className="h-5 w-5 text-red-500 hover:text-red-700" />
+            </button>
+          )}
         </div>
-        {searchTerm && (
-          <button
-            onClick={() => setSearchTerm("")}
-            className="flex items-center gap-1 text-red-600 hover:text-red-800 
-                       transition-colors mt-2 sm:mt-0"
-          >
-            <XCircle className="h-5 w-5" />
-            <span className="font-medium text-sm sm:text-base">Limpiar búsqueda</span>
-          </button>
-        )}
+        
+        {/* Layout toggle button */}
+        <button
+          onClick={() => setIsHorizontal(!isHorizontal)}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-100 dark:bg-blue-900/30 
+                   text-blue-800 dark:text-blue-300 rounded-md hover:bg-blue-200 
+                   dark:hover:bg-blue-800/50 transition-colors"
+        >
+          {isHorizontal ? (
+            <>
+              <BarChart3 className="h-5 w-5" />
+              <span className="font-medium">Vista vertical</span>
+            </>
+          ) : (
+            <>
+              <BarChartHorizontal className="h-5 w-5" />
+              <span className="font-medium">Vista horizontal</span>
+            </>
+          )}
+        </button>
       </div>
 
-      {/* Gráfico responsivo */}
-      <div className="h-[450px] w-full">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart
-            data={chartData}
-            margin={{ top: 30, right: 20, left: 10, bottom: 20 }}
-            barCategoryGap={24}
-          >
-            <CartesianGrid strokeDasharray="4 4" className="opacity-30" />
-            <XAxis 
-              dataKey="name" 
-              angle={-45} 
-              textAnchor="end" 
-              height={60} 
-              tickMargin={16}
-              tickFormatter={(value) => value.slice(0, 12) + (value.length > 12 ? "..." : "")}
-            />
-            <YAxis />
-            <Tooltip content={<CustomTooltip />} />
-            <Legend 
-              verticalAlign="top" 
-              wrapperStyle={{ paddingTop: "20px" }}
-            />
-
-            {/* Barra de Eventos */}
-            <Bar
-              dataKey="eventCount"
-              name="Eventos"
-              fill={colorEvents}
-              radius={[6, 6, 0, 0]}
-              barSize={24}
-              onClick={(barData) => handleBarClick(barData)}
-            >
-              {chartData.map((entry) => (
-                <Cell key={`evt-${entry.id}`} cursor="pointer" />
-              ))}
-            </Bar>
-
-            {/* Barra de Empleados */}
-            <Bar
-              dataKey="empCount"
-              name="Empleados"
-              fill={colorEmps}
-              radius={[6, 6, 0, 0]}
-              barSize={24}
-              onClick={(barData) => handleBarClick(barData)}
-            >
-              {chartData.map((entry) => (
-                <Cell key={`emp-${entry.id}`} cursor="pointer" />
-              ))}
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
+      {/* Chart container with conditional height based on orientation and data count */}
+      <div className={`${isHorizontal ? 'h-[' + Math.max(450, chartData.length * 40) + 'px]' : 'h-[450px]'} w-full`}>
+        {isHorizontal ? renderHorizontalChart() : renderVerticalChart()}
       </div>
     </div>
   );
