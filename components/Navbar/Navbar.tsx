@@ -80,6 +80,7 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
     if (e.key === "Enter") {
       handleSearch();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTerm]); // Include searchTerm in dependencies
 
   // Search function with error handling
