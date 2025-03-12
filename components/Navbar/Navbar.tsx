@@ -55,14 +55,12 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
 
   /**
    * Detección de si el usuario ha ingresado un ID de compañía
-   * (p.e. cm85u3qpk000mvktwncavtvz6).
-   * Si se detecta un patrón con `searchTerm.length > 10`, por ejemplo,
-   * podemos sugerir `/companies/${searchTerm}` como ruta.
-   *
-   * Esto es solo un ejemplo. Podrías usar una expresión regular
-   * o validaciones más específicas si lo deseas.
+   * (p.e. `cm85u3qpk000mvktwncavtvz6`).
+   * Aquí usamos un patrón simplificado:
+   * - `^[a-zA-Z0-9]{12,}$` => 12 o más caracteres alfanuméricos
+   * Si coincide, sugerimos `/companies/${searchTerm}`.
    */
-  const isCompanyId = searchTerm.match(/^[a-zA-Z0-9]{12,}$/); // Patrón simplificado
+  const isCompanyId = searchTerm.match(/^[a-zA-Z0-9]{12,}$/);
   const companyIdRoute = isCompanyId
     ? [{ label: `Ir a Compañía ID: ${searchTerm}`, href: `/companies/${searchTerm}` }]
     : [];
@@ -98,6 +96,7 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
                 <button
                   key={route.href}
                   onClick={() => {
+                    // Navegamos a la ruta y limpiamos búsqueda
                     router.push(route.href);
                     setSearchTerm("");
                   }}
